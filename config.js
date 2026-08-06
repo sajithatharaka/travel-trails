@@ -109,7 +109,7 @@ export const siteConfig = {
           "Go on a thrilling Wildlife Safari (Minneriya / Kaudulla)",
           "Relax with an Ayurvedic Spa Treatment",
         ],
-        note: "✨ Optional stop: visit the Dambulla Cave Temple en route to Sigiriya or on your way to Kandy.",
+        note: "Optional stop: visit the Dambulla Cave Temple en route to Sigiriya or on your way to Kandy.",
         imgPlaceholder: "Sigiriya Lion Rock",
       },
       {
@@ -142,7 +142,7 @@ export const siteConfig = {
         id: "day-ella",
         num: "Day 5 & 6",
         title: "Ella, Adventure & Views",
-        desc: "Head to the charming town of Ella, known for its breathtaking views and relaxed vibe — a two-night stay.",
+        desc: "Head to the charming town of Ella, known for its breathtaking views and relaxed vibe,a two-night stay.",
         expLabel: "Must-do experiences",
         experiences: [
           "Walk along the famous Nine Arch Bridge",
@@ -318,7 +318,7 @@ export const siteConfig = {
     sectionLabel: "Get In Touch",
     headline: "Ready to Walk the Trail?",
     subheadline:
-      "Tell us your travel dates and we'll hold your spot on the 7-Day Sri Lanka Escape — or tailor it to suit you.",
+      "Tell us your travel dates and we'll hold your spot on the 7-Day Sri Lanka Escape, or tailor it to suit you.",
     contactDetails: [
       { label: "hello@traveltrails.lk" },
       { label: "+94 77 123 4567" },
@@ -336,7 +336,7 @@ export const siteConfig = {
   // ---------- FOOTER ----------
   footer: {
     description:
-      "Private, boutique journeys across Sri Lanka — planned by locals, for travellers who want more than a checklist.",
+      "Private, boutique journeys across Sri Lanka. Planned by locals, for travellers who want more than a checklist.",
     exploreLinks: [
       { label: "Route", href: "/#route" },
       { label: "Itinerary", href: "/#itinerary" },

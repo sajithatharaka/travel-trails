@@ -8,7 +8,7 @@ const { brand, seo, hero, enquiry, cookieConsent } = siteConfig;
 
 const title = `${brand.name} — The 7-Day Sri Lanka Escape`;
 const description =
-  "Private, boutique journeys across Sri Lanka — planned by locals, for travellers who want more than a checklist.";
+  "Private, boutique journeys across Sri Lanka. Planned by locals, for travellers who want more than a checklist.";
 // Falls back to the route map photo until a dedicated og-image is dropped
 // into /public/images — see public/images/README.md.
 const ogImage = resolveImage("og-image") || resolveImage("route-map") || seo.ogImage;
