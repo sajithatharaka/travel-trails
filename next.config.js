@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverActions: {
-      allowedOrigins: ["*.app.github.dev", "localhost:3000"],
-    },
+  allowedDevOrigins: ["192.168.1.98"],
+  images: {
+    qualities: [75, 90],
   },
 };
 

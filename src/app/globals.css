@@ -3,22 +3,57 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Smooth scroll for anchor links */
 html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar */
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: oklch(24% 0.03 155);
+  background: oklch(98% 0.012 90);
+}
+
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a0f;
+  background: oklch(98% 0.012 90);
 }
 ::-webkit-scrollbar-thumb {
-  background: #ffffff20;
+  background: oklch(90% 0.02 100);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #ffffff40;
+  background: oklch(80% 0.02 100);
+}
+
+/* Legal pages (privacy, terms, cookie policy) — simple prose styling. */
+.legal-content h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  font-family: Georgia, serif;
+  font-size: 22px;
+  color: oklch(24% 0.03 155);
+}
+.legal-content h2:first-child {
+  margin-top: 0;
+}
+.legal-content p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+  color: oklch(40% 0.025 155);
+}
+.legal-content ul {
+  margin: 0 0 1rem 1.25rem;
+  list-style: disc;
+  color: oklch(40% 0.025 155);
+}
+.legal-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
+}
+.legal-content a {
+  color: oklch(32% 0.08 160);
+  font-weight: 600;
+  text-decoration: underline;
 }

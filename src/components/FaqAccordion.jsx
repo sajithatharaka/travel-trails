@@ -1,46 +1,45 @@
 // src/components/FaqAccordion.jsx
 // ------------------------------------------------------------
-// Animated FAQ accordion — no external dependencies
+// Expand/collapse FAQ list — no external dependencies.
 // ------------------------------------------------------------
 
 "use client";
 
 import { useState } from "react";
 
-export default function FaqAccordion({ items, accentColor }) {
-  const [openIndex, setOpenIndex] = useState(null);
+export default function FaqAccordion({ items }) {
+  const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <div className="divide-y divide-white/10">
-      {items.map((item, i) => (
-        <div key={i} className="py-5">
-          <button
-            onClick={() => setOpenIndex(openIndex === i ? null : i)}
-            className="flex w-full items-center justify-between text-left gap-4 group"
-          >
-            <span className="text-base font-medium text-white group-hover:opacity-80 transition-opacity">
-              {item.q}
-            </span>
-            <span
-              className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold transition-transform duration-200"
-              style={{
-                background: `${accentColor}22`,
-                color: accentColor,
-                transform: openIndex === i ? "rotate(45deg)" : "rotate(0deg)",
-              }}
+    <div className="divide-y divide-line rounded-2xl border border-line bg-surface">
+      {items.map((item, i) => {
+        const open = openIndex === i;
+        return (
+          <div key={item.q} className="px-5 py-5 sm:px-6">
+            <button
+              type="button"
+              onClick={() => setOpenIndex(open ? null : i)}
+              aria-expanded={open}
+              className="flex w-full items-center justify-between gap-4 text-left"
             >
-              +
-            </span>
-          </button>
-
-          <div
-            className="overflow-hidden transition-all duration-300 ease-in-out"
-            style={{ maxHeight: openIndex === i ? "300px" : "0px" }}
-          >
-            <p className="pt-3 text-sm leading-relaxed text-white/50">{item.a}</p>
+              <span className="text-[15px] font-semibold text-ink sm:text-[15.5px]">
+                {item.q}
+              </span>
+              <span
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-icon-tint text-sm font-bold text-deep-jungle transition-transform duration-200"
+                style={{ transform: open ? "rotate(45deg)" : "rotate(0deg)" }}
+              >
+                +
+              </span>
+            </button>
+            {open && (
+              <p className="pt-3 text-[14.5px] leading-relaxed text-ink-soft">
+                {item.a}
+              </p>
+            )}
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

@@ -1,22 +1,19 @@
-# 🚀 Landing Page Starter Kit
+# 🌿 Travel Trails — The 7-Day Sri Lanka Escape
 
-A pre-validation landing page for collecting early-access emails before you build your product.
-
----
-
-## What's included
-
-| Section | Purpose |
-|---|---|
-| **Hero** | Headline + email capture form |
-| **Why** | 3-point problem/solution narrative |
-| **Roadmap** | Phase timeline (Shipped / In Progress / Planned) |
-| **FAQ** | Animated accordion |
-| **Footer CTA** | Second email capture |
+A single-trip landing page for Travel Trails: hero, route, day-by-day
+itinerary, pricing tiers, testimonials, and an enquiry form.
 
 ---
 
-## Setup in 5 steps
+## Stack
+
+- **Next.js** (App Router) + **Tailwind CSS**
+- No database. No custom backend. The enquiry form emails you directly
+  via [Web3Forms](https://web3forms.com) — see below.
+
+---
+
+## Setup
 
 ### 1. Install dependencies
 
@@ -24,50 +21,35 @@ A pre-validation landing page for collecting early-access emails before you buil
 npm install
 ```
 
-### 2. Configure your page
+### 2. Configure your trip enquiry emails
 
-Open `config.js` — this is the **only file you need to edit** for most customisations:
+The enquiry form ([src/components/BookingForm.jsx](src/components/BookingForm.jsx))
+submits straight from the browser to Web3Forms' public API, which emails
+the submission to you. No server code, no database, nothing to host.
 
-- Brand name, tagline, description
-- Accent color (one hex value)
-- Hero copy and CTA text
-- Why/pain points (3 cards)
-- Roadmap phases
-- FAQ items
+1. Go to [web3forms.com](https://web3forms.com) and enter your email to get
+   a free access key (no account required).
+2. Create `.env.local` in the project root:
 
-### 3. Set up Supabase
+   ```env
+   NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY=your-access-key
+   ```
 
-1. Create a project at [supabase.com](https://supabase.com)
-2. Run this SQL in the Supabase SQL editor:
+3. That's it — every submission on the site now lands in your inbox.
 
-```sql
-create table leads (
-  id uuid primary key default gen_random_uuid(),
-  email text not null unique,
-  source text default 'waitlist',
-  created_at timestamptz default now()
-);
+> Alternatives if you'd rather not use Web3Forms: swap the `fetch` call in
+> `BookingForm.jsx` for [Formspree](https://formspree.io) or
+> [EmailJS](https://www.emailjs.com) — both work the same way, client-side,
+> no backend required.
 
-alter table leads enable row level security;
+### 3. Edit content
 
-create policy "Service role insert" on leads
-  for insert with check (true);
-```
+Open [config.js](config.js) — headline, route stops, day-by-day itinerary,
+pricing tiers, testimonials, and contact details all live there. Colors
+live in [tailwind.config.js](tailwind.config.js) (the Travel Trails jungle
+& terracotta palette).
 
-3. Get your keys from **Project Settings → API**
-
-### 4. Add environment variables
-
-Create a `.env.local` file in the project root:
-
-```env
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-```
-
-> ⚠️ Never commit `.env.local` to git. It's in `.gitignore` by default.
-
-### 5. Run it
+### 4. Run it
 
 ```bash
 npm run dev
@@ -77,47 +59,57 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## Deploying to Vercel (recommended)
+## Deploying to Vercel
 
 ```bash
 npm install -g vercel
 vercel
 ```
 
-Add your env vars in the Vercel dashboard under **Settings → Environment Variables**.
+Add `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` under **Settings → Environment
+Variables**. Since there's no backend or database, this also deploys fine
+as a static export on any static host if you prefer.
 
 ---
 
-## Viewing collected emails
+## Photos
 
-In your Supabase dashboard → **Table Editor → leads**. You can also export as CSV.
+Every image on the page is currently a labeled placeholder — hero slides,
+the route map, each itinerary day, and guest avatars
+([src/components/ImageSlot.jsx](src/components/ImageSlot.jsx)).
 
----
+**To add one: drop a file into [public/images/](public/images/) with the
+right name — nothing else to edit.** Filenames are matched automatically
+(`.jpg`, `.jpeg`, `.png`, or `.webp`), for example:
 
-## Optional: Add social proof
+- `public/images/hero-1.jpg` → first hero slide
+- `public/images/route-map.jpg` → route section map
+- `public/images/day-sigiriya.jpg` → the Sigiriya itinerary day
+- `public/images/avatar-1.jpg` → first testimonial's guest photo
 
-When you have real testimonials, uncomment and fill the `testimonials` array in `config.js`. The section auto-hides when the array is empty.
+Full filename list and recommended sizes in
+[public/images/README.md](public/images/README.md). Restart `npm run dev`
+(or rerun `npm run build`) after adding files — the lookup happens at
+build time.
 
 ---
 
 ## File structure
 
 ```
-landing-starter-kit/
-├── config.js                  ← Edit this (brand, copy, colors)
+travel-trails/
+├── config.js                    ← Edit this (copy, itinerary, pricing, contact)
 ├── src/
 │   ├── app/
-│   │   ├── layout.jsx         ← HTML shell + fonts
-│   │   ├── page.jsx           ← Full page layout
-│   │   └── globals.css        ← Tailwind + base styles
-│   ├── components/
-│   │   ├── EmailForm.jsx      ← Email capture (used in Hero + Footer)
-│   │   └── FaqAccordion.jsx   ← Animated FAQ
-│   └── lib/
-│       ├── supabase.js        ← Supabase client
-│       └── actions.js         ← Server action (insert email)
+│   │   ├── layout.jsx           ← HTML shell + metadata
+│   │   ├── page.jsx             ← Full page layout, all sections
+│   │   └── globals.css          ← Tailwind + base styles
+│   └── components/
+│       ├── HeroSlider.jsx       ← Auto-rotating hero background + dots
+│       ├── ImageSlot.jsx        ← Placeholder for a photo not added yet
+│       └── BookingForm.jsx      ← Enquiry form → Web3Forms (no backend)
 ├── package.json
-├── tailwind.config.js
+├── tailwind.config.js           ← Travel Trails color palette
 ├── next.config.js
 └── README.md
 ```
