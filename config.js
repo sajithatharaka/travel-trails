@@ -38,6 +38,7 @@ export const siteConfig = {
       { label: "Why Us", href: "/#why" },
       { label: "FAQ", href: "/#faq" },
       { label: "Contact", href: "/#enquiry" },
+      { label: "Tree Trails Sigiriya", href: "https://treetrailssigiriya.com/", external: true },
     ],
     ctaLabel: "Book This Trip",
     ctaHref: "/#enquiry",
@@ -218,7 +219,7 @@ export const siteConfig = {
     sectionLabel: "Traveller Stories",
     headline: "What Our Guests Say",
     subheadline:
-      "Travel Trails is brand new, but we're not new to hospitality. We're the team behind TreeTrails Sigiriya, and we built this agency to extend that same care to your entire Sri Lanka journey, here's what our hotel guests have been telling us.",
+      "We're the team behind TreeTrails Sigiriya, and we built this agency to extend that same care to your entire Sri Lanka journey, here's what our hotel guests have been telling us.",
     // Each avatar auto-loads from /public/images/<avatarId>.jpg (or
     // .jpeg/.png/.webp) — see README "Photos".
     items: [

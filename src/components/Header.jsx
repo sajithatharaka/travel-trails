@@ -48,15 +48,27 @@ export default function Header() {
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">
-          {nav.links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-[15px] font-medium text-ink-soft transition-colors hover:text-ink"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {nav.links.map((link) =>
+            link.external ? (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[15px] font-medium text-ink-soft transition-colors hover:text-ink"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-[15px] font-medium text-ink-soft transition-colors hover:text-ink"
+              >
+                {link.label}
+              </Link>
+            )
+          )}
         </div>
 
         <Link
@@ -96,16 +108,29 @@ export default function Header() {
       {open && (
         <div className="border-t border-line bg-surface px-5 py-4 md:hidden">
           <div className="flex flex-col">
-            {nav.links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={close}
-                className="rounded-lg px-2 py-3 text-[15.5px] font-medium text-ink-soft transition-colors hover:bg-section-tint hover:text-ink"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {nav.links.map((link) =>
+              link.external ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={close}
+                  className="rounded-lg px-2 py-3 text-[15.5px] font-medium text-ink-soft transition-colors hover:bg-section-tint hover:text-ink"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={close}
+                  className="rounded-lg px-2 py-3 text-[15.5px] font-medium text-ink-soft transition-colors hover:bg-section-tint hover:text-ink"
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
           </div>
           <Link
             href={nav.ctaHref}
