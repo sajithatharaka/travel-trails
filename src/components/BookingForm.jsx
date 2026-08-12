@@ -39,7 +39,7 @@ export default function BookingForm({ successMessage }) {
     if (!ACCESS_KEY) {
       setStatus("error");
       setErrorMsg(
-        "Enquiry form isn't configured yet — missing NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY."
+        "Enquiry form isn't configured yet - missing NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY."
       );
       return;
     }
@@ -50,7 +50,7 @@ export default function BookingForm({ successMessage }) {
     const form = e.target;
     const formData = new FormData(form);
     formData.append("access_key", ACCESS_KEY);
-    formData.append("subject", "New trip enquiry — Travel Trails");
+    formData.append("subject", "New trip enquiry - Travel Trails");
     formData.append("from_name", "Travel Trails website");
 
     try {

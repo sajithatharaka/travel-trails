@@ -6,6 +6,7 @@ Filenames matter — the site auto-detects them by exact name (any of
 | File | Used for | Recommended size |
 |---|---|---|
 | `hero-1` … `hero-4` | Rotating hero background (4 slides) | 1920×1200+, landscape |
+| `about` | About Travel Trails section photo (currently the safari/elephants shot) | 1200×900, landscape (4:3) |
 | `route-map` | Route section map graphic | 1000×1250, portrait (4:5) |
 | `day-sigiriya` | Itinerary — Sigiriya | 1200×900, landscape (4:3) |
 | `day-kandy` | Itinerary — Kandy | 1200×900, landscape (4:3) |

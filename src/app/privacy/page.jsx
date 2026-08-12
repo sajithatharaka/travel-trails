@@ -7,6 +7,7 @@ const email = enquiry.contactDetails[0]?.label;
 
 export const metadata = {
   title: "Privacy Policy",
+  description: `How ${brand.name} collects, uses and protects the personal information you share when enquiring about or booking a Sri Lanka trip.`,
   alternates: { canonical: "/privacy" },
 };
 
@@ -26,13 +27,13 @@ export default function PrivacyPolicyPage() {
         We only collect information you give us directly. When you submit
         the trip enquiry form, we receive your name, email address, travel
         dates, number of travellers and any message you include. We don't
-        run a database or backend of our own — form submissions are emailed
+        run a database or backend of our own - form submissions are emailed
         to us directly via our form provider, Web3Forms.
       </p>
       <p>
         We also use a small amount of local browser storage to remember
         your cookie preference (see our{" "}
-        <a href="/cookie-policy">Cookie Policy</a>) — this stays on your
+        <a href="/cookie-policy">Cookie Policy</a>) - this stays on your
         device and isn't sent to us.
       </p>
 

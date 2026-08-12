@@ -11,7 +11,7 @@ export const siteConfig = {
     nameAccentPart: "Trails", // the part of the name rendered in the accent color
     // Used for canonical URLs, sitemap.xml, robots.txt and JSON-LD. Override
     // with NEXT_PUBLIC_SITE_URL once the site has a real domain deployed.
-    siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://www.traveltrails.lk",
+    siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://www.traveltrails.agency",
   },
 
   // ---------- SEO ----------
@@ -25,7 +25,7 @@ export const siteConfig = {
       "7 day Sri Lanka trip",
       "Sigiriya Kandy Ella Mirissa tour",
     ],
-    ogImage: "/images/og-image.jpg",
+    ogImage: "/images/travel-trails-og-image.jpg", // falls back to /public/images/route-map.jpg if missing
   },
 
   // ---------- NAV ----------
@@ -36,7 +36,6 @@ export const siteConfig = {
       { label: "Route", href: "/#route" },
       { label: "Itinerary", href: "/#itinerary" },
       { label: "Why Us", href: "/#why" },
-      { label: "Pricing", href: "/#pricing" },
       { label: "FAQ", href: "/#faq" },
       { label: "Contact", href: "/#enquiry" },
     ],
@@ -59,6 +58,8 @@ export const siteConfig = {
       { id: "day-nuwaraeliya", placeholder: "Tea plantations, Nuwara Eliya" },
       { id: "day-ella", placeholder: "Nine Arch Bridge, Ella" },
       { id: "day-mirissa", placeholder: "Mirissa beach at golden hour" },
+      { id: "elephants", placeholder: "Elephants on safari" },
+      { id: "monkeys", placeholder: "Monkeys in the wild" },
     ],
   },
 
@@ -69,6 +70,19 @@ export const siteConfig = {
     { value: "4", label: "Themes" },
     { value: "15+", label: "Experiences" },
   ],
+
+  // ---------- ABOUT ----------
+  about: {
+    sectionLabel: "About Travel Trails",
+    headline: "Rooted in Sri Lankan Hospitality",
+    // Auto-loads from /public/images/about.jpg (or .jpeg/.png/.webp)
+    imgPlaceholder: "Safari, Sri Lanka",
+    paragraphs: [
+      "Travel Trails is a travel and destination management company operating under the trusted hospitality brand of Tree Trails Sigiriya. Building on our experience in welcoming travellers to Sri Lanka, we curate thoughtfully planned journeys that combine seamless arrangements, personalised experiences, and reliable support throughout every stage of the trip.",
+      "Our approach is centred on traveller wellbeing, comfort, reliability, and exceptional guest care. From carefully selected experiences and transportation to personalised itineraries and on-trip assistance, we strive to make every journey smooth, memorable, and worry-free.",
+      "With Travel Trails, guests can explore Sri Lanka with confidence, knowing that every detail is thoughtfully coordinated by a team committed to delivering a high standard of service.",
+    ],
+  },
 
   // ---------- ROUTE ----------
   route: {
@@ -203,36 +217,59 @@ export const siteConfig = {
   testimonials: {
     sectionLabel: "Traveller Stories",
     headline: "What Our Guests Say",
+    subheadline:
+      "Travel Trails is brand new, but we're not new to hospitality. We're the team behind TreeTrails Sigiriya, and we built this agency to extend that same care to your entire Sri Lanka journey, here's what our hotel guests have been telling us.",
     // Each avatar auto-loads from /public/images/<avatarId>.jpg (or
     // .jpeg/.png/.webp) — see README "Photos".
     items: [
       {
         quote:
-          "Every detail was considered — from the boutique stay in Sigiriya to the sunrise hike in Ella. It felt personal, not packaged.",
-        name: "Hannah & Tom",
-        trip: "7-Day Sri Lanka Escape",
-        avatarId: "avatar-1",
+          "Beautiful, peaceful new property! The deluxe rooms feature a treehouse where you have a great view of Sigiriya Rock. It's also a serene place to just sit and listen to the birds. Lovely pool, good restaurant, and exceptionally friendly and accommodating staff. It's a great value for the money as well!",
+        name: "Stacy",
+        trip: "United States",
+        avatarId: "avatar-stacy",
       },
       {
         quote:
-          "Our guide's local knowledge made all the difference — quiet corners of Nuwara Eliya we'd never have found ourselves.",
-        name: "Marcus L.",
-        trip: "7-Day Sri Lanka Escape",
-        avatarId: "avatar-2",
+          "We stayed 2 nights on this beautiful location with beautiful people. The very nice room was situated in a little house with a nice terrace outside, so clean and looked like a totally new place. The service was brilliant — they arranged a transfer to Pidurangala at 5am and a very good taxi driver for our next leg. Tree Trails, thank you so much for taking care of us! We loved our stay with you.",
+        name: "Britt",
+        trip: "Netherlands",
+        avatarId: "avatar-britt",
       },
       {
         quote:
-          "Mirissa at the end was the perfect way to unwind after the mountains. Seamless from airport to airport.",
-        name: "The Alvarez Family",
-        trip: "7-Day Sri Lanka Escape",
-        avatarId: "avatar-3",
+          "Our room was on the top floor with a direct view of Lion Rock — perfect. The staff was very friendly and helpful. They can help you book a tuk tuk or driver. We booked rides through them and got very good and professional drivers.",
+        name: "Dolores",
+        trip: "Croatia",
+        avatarId: "avatar-dolores",
+      },
+      {
+        quote:
+          "The property is in a great location, surrounded by wildlife. The sounds alone were my favourite part. The staff are all so friendly. They organised for a tuk tuk to take us to Lion Rock at 5am so we could see the sunrise. Food in the restaurant is made to order and was so nice. We have been travelling for a couple months and this is my favourite place we have ever stayed.",
+        name: "Gemma",
+        trip: "Ireland",
+        avatarId: "avatar-gemma",
+      },
+      {
+        quote:
+          "Such a peaceful place and we were so well looked after by the kind staff. The breakfast was a feast and we even were able to have it in our treehouse. Was great to have a pool if needed, but the star of the show was the roof of the treehouse — an absolute haven with stunning views over the jungle canopy, Sigiriya and Pidurangala rocks. Thank you so much for our delightful stay!",
+        name: "Rowena",
+        trip: "United Kingdom",
+        avatarId: "avatar-rowena",
+      },
+      {
+        quote:
+          "Perfect location, peaceful and serene atmosphere, very clean and comfortable. Above all absolutely caring staff.",
+        name: "Khalid",
+        trip: "United Kingdom",
+        avatarId: "avatar-khalid",
       },
     ],
   },
 
   // ---------- PRICING ----------
   pricing: {
-    show: true,
+    show: false,
     sectionLabel: "Packages",
     headline: "Choose Your Trail",
     subheadline:
@@ -300,7 +337,7 @@ export const siteConfig = {
       },
       {
         q: "Can the itinerary be customized?",
-        a: "Yes — the 7-Day Escape is our signature route, but pace, stays and add-on experiences can all be tailored. Tell us your dates and preferences in the enquiry form and we'll adjust the plan.",
+        a: "Yes, the 7-Day Escape is our signature route, but pace, stays and add-on experiences can all be tailored. Tell us your dates and preferences in the enquiry form and we'll adjust the plan.",
       },
       {
         q: "How many people will be in our group?",
@@ -320,10 +357,13 @@ export const siteConfig = {
     subheadline:
       "Tell us your travel dates and we'll hold your spot on the 7-Day Sri Lanka Escape, or tailor it to suit you.",
     contactDetails: [
-      { label: "hello@traveltrails.lk" },
-      { label: "+94 77 123 4567" },
-      { label: "Colombo, Sri Lanka" },
+      { label: "hello@traveltrails.agency" },
+      { label: "+94 74 362 0305" },
+      { label: "362 D/6, New Kandy Road, Delgoda" },
     ],
+    // Digits only (country code, no +, spaces or leading zero) — used to build the wa.me link.
+    whatsappNumber: "94743620305",
+    whatsappMessage: "Hi Travel Trails! I'd like to know more about the 7-Day Sri Lanka Escape.",
     // Pre-filled into the message field depending on which hero button
     // sent the visitor here (see HeroCta.jsx).
     bookMessage:
@@ -340,7 +380,6 @@ export const siteConfig = {
     exploreLinks: [
       { label: "Route", href: "/#route" },
       { label: "Itinerary", href: "/#itinerary" },
-      { label: "Pricing", href: "/#pricing" },
       { label: "FAQ", href: "/#faq" },
     ],
     companyLinks: [
@@ -352,6 +391,8 @@ export const siteConfig = {
       { label: "Terms & Conditions", href: "/terms" },
       { label: "Cookie Policy", href: "/cookie-policy" },
     ],
+    groupNote:
+      "Travel Trails is part of a group of companies spanning the Hospitality and Manufacturing industries, including Valista Packaging, providers of corrugated carton solutions.",
     legal: `© ${new Date().getFullYear()} Travel Trails. All rights reserved.`,
   },
 

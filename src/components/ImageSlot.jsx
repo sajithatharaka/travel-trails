@@ -11,6 +11,7 @@ export default function ImageSlot({
   src,
   alt,
   placeholder,
+  initials,
   shape = "rect",
   className = "",
   imgClassName = "",
@@ -32,6 +33,18 @@ export default function ImageSlot({
           quality={quality}
           className={`object-cover ${imgClassName}`}
         />
+      </div>
+    );
+  }
+
+  if (initials) {
+    return (
+      <div
+        className={`flex h-full w-full items-center justify-center bg-gradient-to-br from-jungle to-deep-jungle text-center ${shapeClass} ${className}`}
+      >
+        <span className="text-sm font-semibold tracking-wide text-surface/90">
+          {initials}
+        </span>
       </div>
     );
   }

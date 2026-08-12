@@ -1,12 +1,13 @@
 // src/app/page.jsx
 // ------------------------------------------------------------
-// Travel Trails — The 7-Day Sri Lanka Escape landing page.
+// Travel Trails - The 7-Day Sri Lanka Escape landing page.
 // All copy/data comes from /config.js. Colors come from the
 // Travel Trails palette wired into tailwind.config.js.
 // ------------------------------------------------------------
 
 import { siteConfig } from "../../config";
 import { resolveImage } from "@/lib/resolveImage";
+import { getInitials } from "@/lib/getInitials";
 import ImageSlot from "@/components/ImageSlot";
 import HeroSlider from "@/components/HeroSlider";
 import HeroCta from "@/components/HeroCta";
@@ -15,7 +16,7 @@ import FaqAccordion from "@/components/FaqAccordion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const { hero, stats, route, itinerary, why, testimonials, pricing, faq, enquiry } =
+const { hero, stats, about, route, itinerary, why, testimonials, pricing, faq, enquiry } =
   siteConfig;
 
 const heroSlidesResolved = hero.slides.map((slide) => ({
@@ -36,9 +37,27 @@ const iconShapeClass = {
     "h-5 w-5 bg-deep-jungle [clip-path:polygon(50%_0,100%_100%,0_100%)]",
 };
 
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faq.items.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.a,
+    },
+  })),
+};
+
 export default function Page() {
   return (
     <main>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       {/* ─── NAV ─────────────────────────────────────────── */}
       <Header />
 
@@ -94,6 +113,34 @@ export default function Page() {
           ))}
         </div>
       </div>
+
+      {/* ─── ABOUT ───────────────────────────────────────── */}
+      <section id="about" className="bg-surface px-5 py-16 sm:px-8 sm:py-24">
+        <div className="mx-auto grid max-w-[1180px] gap-14 md:grid-cols-2 md:items-center">
+          <div>
+            <p className="text-[13px] font-semibold uppercase tracking-[.14em] text-terracotta">
+              {about.sectionLabel}
+            </p>
+            <h2 className="mt-2.5 mb-5 font-serif text-[clamp(30px,3.6vw,44px)] leading-tight text-ink">
+              {about.headline}
+            </h2>
+            <div className="flex flex-col gap-4">
+              {about.paragraphs.map((p, i) => (
+                <p key={i} className="text-base leading-relaxed text-ink-soft">
+                  {p}
+                </p>
+              ))}
+            </div>
+          </div>
+          <div className="aspect-[4/3] overflow-hidden rounded-[20px] md:order-2">
+            <ImageSlot
+              src={resolveImage("about")}
+              alt={about.imgPlaceholder}
+              placeholder={about.imgPlaceholder}
+            />
+          </div>
+        </div>
+      </section>
 
       {/* ─── ROUTE ───────────────────────────────────────── */}
       <section id="route" className="bg-surface px-5 py-16 sm:px-8 sm:py-24">
@@ -263,6 +310,14 @@ export default function Page() {
             <h2 className="mt-2.5 font-serif text-[clamp(30px,3.6vw,44px)] leading-tight text-surface">
               {testimonials.headline}
             </h2>
+            {testimonials.subheadline && (
+              <p
+                className="mt-3.5 text-lg leading-relaxed"
+                style={{ color: "oklch(85% 0.02 90)" }}
+              >
+                {testimonials.subheadline}
+              </p>
+            )}
           </div>
           <div className="grid gap-7 md:grid-cols-3">
             {testimonials.items.map((t) => (
@@ -285,6 +340,7 @@ export default function Page() {
                       src={resolveImage(t.avatarId)}
                       alt={t.name}
                       placeholder="Guest photo"
+                      initials={getInitials(t.name)}
                       shape="circle"
                     />
                   </div>

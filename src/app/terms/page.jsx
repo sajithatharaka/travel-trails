@@ -7,6 +7,7 @@ const email = enquiry.contactDetails[0]?.label;
 
 export const metadata = {
   title: "Terms & Conditions",
+  description: `Booking terms, payment and cancellation policy for ${brand.name}'s private Sri Lanka tours.`,
   alternates: { canonical: "/terms" },
 };
 

@@ -2,11 +2,12 @@
 import LegalLayout from "@/components/LegalLayout";
 import { siteConfig } from "../../../config";
 
-const { enquiry } = siteConfig;
+const { brand, enquiry } = siteConfig;
 const email = enquiry.contactDetails[0]?.label;
 
 export const metadata = {
   title: "Cookie Policy",
+  description: `How ${brand.name} uses cookies and local browser storage on this site.`,
   alternates: { canonical: "/cookie-policy" },
 };
 
@@ -24,7 +25,7 @@ export default function CookiePolicyPage() {
       <p>This Site keeps things deliberately minimal:</p>
       <ul>
         <li>
-          <strong>Essential local storage</strong> — remembers whether
+          <strong>Essential local storage</strong> - remembers whether
           you've accepted or declined this cookie notice, so it doesn't
           show again on your next visit.
         </li>

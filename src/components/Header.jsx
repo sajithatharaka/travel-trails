@@ -14,6 +14,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { siteConfig } from "../../config";
 
@@ -32,8 +33,16 @@ export default function Header() {
         <Link
           href="/"
           onClick={close}
-          className="font-serif text-[19px] font-bold text-deep-jungle sm:text-[22px]"
+          className="flex items-center gap-2.5 font-serif text-[19px] font-bold text-deep-jungle sm:text-[22px]"
         >
+          <Image
+            src="/images/travel-trails-mark.png"
+            alt=""
+            width={385}
+            height={506}
+            priority
+            className="h-9 w-auto sm:h-10"
+          />
           {brand.name.replace(brand.nameAccentPart, "")}
           <span className="text-terracotta">{brand.nameAccentPart}</span>
         </Link>

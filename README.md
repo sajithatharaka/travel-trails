@@ -1,4 +1,4 @@
-# 🌿 Travel Trails — The 7-Day Sri Lanka Escape
+# 🌿 Travel Trails - The 7-Day Sri Lanka Escape
 
 A single-trip landing page for Travel Trails: hero, route, day-by-day
 itinerary, pricing tiers, testimonials, and an enquiry form.

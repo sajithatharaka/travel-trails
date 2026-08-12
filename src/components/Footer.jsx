@@ -79,7 +79,13 @@ export default function Footer() {
           </div>
         </div>
         <div
-          className="pt-6 text-center text-[13px]"
+          className="mx-auto max-w-[640px] pt-6 text-center text-[13px] leading-relaxed"
+          style={{ color: "oklch(65% 0.02 160)" }}
+        >
+          {footer.groupNote}
+        </div>
+        <div
+          className="pt-2 text-center text-[13px]"
           style={{ color: "oklch(65% 0.02 160)" }}
         >
           {footer.legal}
