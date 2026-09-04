@@ -36,7 +36,7 @@ export const siteConfig = {
       { label: "Tours", href: "/tours" },
       { label: "Why Us", href: "/#why" },
       { label: "FAQ", href: "/#faq" },
-      { label: "Contact", href: "/#enquiry" },
+      { label: "Contact", href: "/contact" },
       {
         label: "Tree Trails Sigiriya",
         href: "https://treetrailssigiriya.com/",
@@ -213,7 +213,7 @@ export const siteConfig = {
     ],
     companyLinks: [
       { label: "Why Us", href: "/#why" },
-      { label: "Contact", href: "/#enquiry" },
+      { label: "Contact", href: "/contact" },
     ],
     legalLinks: [
       { label: "Privacy Policy", href: "/privacy" },

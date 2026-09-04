@@ -67,18 +67,8 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Operations",
     defaultOpen: true,
     items: [
-      {
-        label: "Booking Requests",
-        href: "/admin/bookings",
-        icon: CalendarCheck,
-        soon: true,
-      },
-      {
-        label: "Contacts",
-        href: "/admin/contacts",
-        icon: MessageSquare,
-        soon: true,
-      },
+      { label: "Booking Requests", href: "/admin/bookings", icon: CalendarCheck },
+      { label: "Contacts", href: "/admin/contacts", icon: MessageSquare },
     ],
   },
   {

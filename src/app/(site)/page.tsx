@@ -13,7 +13,7 @@ import { getInitials } from "@/lib/getInitials";
 import ImageSlot from "@/components/ImageSlot";
 import HeroSlider from "@/components/HeroSlider";
 import HeroCta from "@/components/HeroCta";
-import BookingForm from "@/components/BookingForm";
+import EnquiryForm from "@/components/EnquiryForm";
 import FaqAccordion from "@/components/FaqAccordion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -452,7 +452,12 @@ export default async function HomePage() {
               ))}
             </div>
           </div>
-          <BookingForm successMessage={enquiry.successMessage} />
+          <EnquiryForm
+            successMessage={enquiry.successMessage}
+            tourId={tour?.id}
+            tourSlug={tour?.slug}
+            tourTitle={tour?.title}
+          />
         </div>
       </section>
 

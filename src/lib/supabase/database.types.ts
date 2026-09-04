@@ -130,6 +130,116 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["tour_route_stops"]["Insert"]>;
         Relationships: [];
       };
+      booking_requests: {
+        Row: {
+          id: string;
+          created_at: string;
+          tour_id: string | null;
+          tour_slug: string | null;
+          tour_title: string | null;
+          first_name: string;
+          last_name: string;
+          email: string;
+          phone: string | null;
+          travel_date: string | null;
+          travellers: number | null;
+          adults: number;
+          children: number;
+          message: string | null;
+          status: "pending" | "confirmed" | "cancelled";
+          handled_by: string | null;
+          handled_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          tour_id?: string | null;
+          tour_slug?: string | null;
+          tour_title?: string | null;
+          first_name: string;
+          last_name?: string;
+          email: string;
+          phone?: string | null;
+          travel_date?: string | null;
+          travellers?: number | null;
+          adults?: number;
+          children?: number;
+          message?: string | null;
+          status?: "pending" | "confirmed" | "cancelled";
+          handled_by?: string | null;
+          handled_at?: string | null;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["booking_requests"]["Insert"]
+        >;
+        Relationships: [];
+      };
+      contact_submissions: {
+        Row: {
+          id: string;
+          created_at: string;
+          name: string;
+          email: string;
+          phone: string | null;
+          subject: string;
+          message: string;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          name: string;
+          email: string;
+          phone?: string | null;
+          subject?: string;
+          message: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["contact_submissions"]["Insert"]
+        >;
+        Relationships: [];
+      };
+      notification_recipients: {
+        Row: {
+          id: string;
+          created_at: string;
+          email: string;
+          is_active: boolean;
+          created_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          email: string;
+          is_active?: boolean;
+          created_by?: string | null;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["notification_recipients"]["Insert"]
+        >;
+        Relationships: [];
+      };
+      notification_dispatch_logs: {
+        Row: {
+          id: string;
+          created_at: string;
+          dedupe_key: string;
+          event_type: "new_booking" | "new_inquiry" | "booking_status_changed";
+          status: "sent" | "skipped" | "failed";
+          details: Record<string, unknown>;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          dedupe_key: string;
+          event_type: "new_booking" | "new_inquiry" | "booking_status_changed";
+          status: "sent" | "skipped" | "failed";
+          details?: Record<string, unknown>;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["notification_dispatch_logs"]["Insert"]
+        >;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -144,3 +254,10 @@ export type TourRow = Database["public"]["Tables"]["tours"]["Row"];
 export type TourDayRow = Database["public"]["Tables"]["tour_days"]["Row"];
 export type TourRouteStopRow = Database["public"]["Tables"]["tour_route_stops"]["Row"];
 export type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
+export type BookingRequestRow =
+  Database["public"]["Tables"]["booking_requests"]["Row"];
+export type ContactSubmissionRow =
+  Database["public"]["Tables"]["contact_submissions"]["Row"];
+export type NotificationRecipientRow =
+  Database["public"]["Tables"]["notification_recipients"]["Row"];
+export type BookingStatus = BookingRequestRow["status"];

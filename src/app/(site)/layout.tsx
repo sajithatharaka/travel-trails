@@ -1,3 +1,4 @@
+import Script from "next/script";
 import { siteConfig } from "@/config";
 import CookieConsent from "@/components/CookieConsent";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -12,6 +13,12 @@ export default function SiteLayout({
   return (
     <>
       {children}
+      {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && (
+        <Script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          strategy="afterInteractive"
+        />
+      )}
       <WhatsAppButton
         number={enquiry.whatsappNumber}
         message={enquiry.whatsappMessage}

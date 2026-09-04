@@ -35,3 +35,14 @@ file_size_limit = "50MiB"
 
 [functions.manage-users]
 verify_jwt = true
+
+# Public forms — callable by anonymous visitors. Turnstile is verified inside.
+[functions.submit-booking]
+verify_jwt = false
+
+[functions.submit-contact]
+verify_jwt = false
+
+# Invoked server-to-server (service-role bearer) and by the admin (admin JWT).
+[functions.notify-admin-events]
+verify_jwt = true

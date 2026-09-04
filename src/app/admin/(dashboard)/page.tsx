@@ -17,17 +17,34 @@ async function safeCount(
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
 
-  const [tours, publishedTours] = await Promise.all([
-    safeCount(() =>
-      supabase.from("tours").select("id", { count: "exact", head: true }),
-    ),
-    safeCount(() =>
-      supabase
-        .from("tours")
-        .select("id", { count: "exact", head: true })
-        .eq("is_published", true),
-    ),
-  ]);
+  const [tours, publishedTours, pendingBookings, totalBookings, contacts] =
+    await Promise.all([
+      safeCount(() =>
+        supabase.from("tours").select("id", { count: "exact", head: true }),
+      ),
+      safeCount(() =>
+        supabase
+          .from("tours")
+          .select("id", { count: "exact", head: true })
+          .eq("is_published", true),
+      ),
+      safeCount(() =>
+        supabase
+          .from("booking_requests")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending"),
+      ),
+      safeCount(() =>
+        supabase
+          .from("booking_requests")
+          .select("id", { count: "exact", head: true }),
+      ),
+      safeCount(() =>
+        supabase
+          .from("contact_submissions")
+          .select("id", { count: "exact", head: true }),
+      ),
+    ]);
 
   const cards = [
     {
@@ -38,8 +55,22 @@ export default async function AdminDashboardPage() {
       href: "/admin/tours",
       color: "text-forest",
     },
-    { label: "Booking Requests", value: null, icon: CalendarCheck, href: "#", color: "text-amber-600", hint: "Phase 2" },
-    { label: "Contact Messages", value: null, icon: MessageSquare, href: "#", color: "text-teal-600", hint: "Phase 2" },
+    {
+      label: "Pending Bookings",
+      value: pendingBookings,
+      hint: totalBookings != null ? `${totalBookings} total` : undefined,
+      icon: CalendarCheck,
+      href: "/admin/bookings",
+      color: "text-amber-600",
+    },
+    {
+      label: "Contact Messages",
+      value: contacts,
+      hint: undefined as string | undefined,
+      icon: MessageSquare,
+      href: "/admin/contacts",
+      color: "text-teal-600",
+    },
     { label: "Gallery Photos", value: null, icon: Images, href: "#", color: "text-blue-600", hint: "Phase 3" },
     { label: "Published Posts", value: null, icon: BookOpen, href: "#", color: "text-purple-600", hint: "Phase 3" },
     { label: "Reviews", value: null, icon: Star, href: "#", color: "text-sand", hint: "Phase 3" },

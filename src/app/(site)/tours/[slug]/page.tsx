@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { listPublishedTours, getTourBySlug, formatPriceFrom } from "@/lib/tours";
+import { siteConfig } from "@/config";
 import { resolveImage } from "@/lib/resolveImage";
 import ImageSlot from "@/components/ImageSlot";
+import EnquiryForm from "@/components/EnquiryForm";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -137,12 +138,12 @@ export default async function TourDetailPage({
           <p className="text-lg leading-relaxed text-ink-soft">
             {tour.hero_subheadline || tour.summary}
           </p>
-          <Link
-            href="/#enquiry"
+          <a
+            href="#enquire"
             className="inline-flex items-center justify-center rounded-full bg-terracotta px-7 py-[14px] text-[15px] font-semibold text-surface transition-opacity hover:opacity-90"
           >
             Enquire about this tour
-          </Link>
+          </a>
         </div>
       </section>
 
@@ -240,13 +241,31 @@ export default async function TourDetailPage({
         </section>
       )}
 
-      <section className="bg-surface px-5 py-16 text-center sm:px-8">
-        <Link
-          href="/#enquiry"
-          className="inline-flex items-center rounded-full bg-deep-jungle px-8 py-4 text-[15px] font-semibold text-surface transition-opacity hover:opacity-90"
-        >
-          Plan this trip with us
-        </Link>
+      {/* Enquiry */}
+      <section
+        id="enquire"
+        className="scroll-mt-20 bg-surface px-5 py-16 sm:px-8 sm:py-24"
+      >
+        <div className="mx-auto grid max-w-[1180px] gap-14 md:grid-cols-[0.9fr_1.1fr] md:items-start">
+          <div>
+            <p className="text-[13px] font-semibold uppercase tracking-[.14em] text-terracotta">
+              Get In Touch
+            </p>
+            <h2 className="my-2.5 font-serif text-[clamp(26px,3vw,36px)] text-ink">
+              Enquire about {tour.title}
+            </h2>
+            <p className="mb-7 text-base leading-relaxed text-ink-soft">
+              Tell us your travel dates and party size — we&rsquo;ll hold your
+              spot or tailor the itinerary to suit you.
+            </p>
+          </div>
+          <EnquiryForm
+            successMessage={siteConfig.enquiry.successMessage}
+            tourId={tour.id}
+            tourSlug={tour.slug}
+            tourTitle={tour.title}
+          />
+        </div>
       </section>
 
       <Footer />
