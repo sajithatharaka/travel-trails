@@ -14,3 +14,12 @@ out/
 .DS_Store
 *.pem
 npm-debug.log*
+
+# typescript
+next-env.d.ts
+*.tsbuildinfo
+
+# supabase
+supabase/.branches
+supabase/.temp
+.env

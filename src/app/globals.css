@@ -3,14 +3,63 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-behavior: smooth;
+@layer base {
+  :root {
+    /* shadcn semantic tokens — tuned to the Travel Trails palette (light only;
+       the admin UI does not offer a dark toggle). */
+    --background: 40 30% 97%;
+    --foreground: 155 25% 18%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 155 25% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 155 25% 18%;
+
+    --primary: 155 32% 22%;
+    --primary-foreground: 40 30% 97%;
+
+    --secondary: 40 24% 92%;
+    --secondary-foreground: 155 25% 20%;
+
+    --muted: 40 20% 92%;
+    --muted-foreground: 155 8% 40%;
+
+    --accent: 22 62% 49%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 15% 85%;
+    --input: 40 15% 85%;
+    --ring: 155 32% 22%;
+
+    --radius: 0.6rem;
+
+    /* admin accent aliases (ported component classNames) */
+    --forest: 155 40% 20%;
+    --canopy: 155 30% 30%;
+    --moss: 150 20% 45%;
+    --mist: 150 20% 82%;
+    --bark: 25 40% 25%;
+    --earth: 25 20% 38%;
+    --sand: 22 62% 52%;
+    --cream: 40 30% 95%;
+    --stone: 40 15% 88%;
+  }
 }
 
-body {
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-  color: oklch(24% 0.03 155);
-  background: oklch(98% 0.012 90);
+@layer base {
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: oklch(24% 0.03 155);
+    background: oklch(98% 0.012 90);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 ::-webkit-scrollbar {
