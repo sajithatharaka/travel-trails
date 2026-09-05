@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Loader2, Plus, Trash2, GripVertical } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { slugify } from "@/lib/slug";
 import { revalidateToursCache } from "../actions";
 import { toast } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
@@ -86,14 +87,6 @@ const emptyDay = (): DayForm => ({
 });
 
 const emptyStop = (): StopForm => ({ name: "", description: "", anchor: "" });
-
-function slugify(s: string) {
-  return s
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
 
 export default function TourEditorPage() {
   const router = useRouter();

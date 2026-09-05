@@ -1,15 +1,18 @@
 import Script from "next/script";
 import { siteConfig } from "@/config";
+import { getSiteSettings } from "@/lib/settings";
 import CookieConsent from "@/components/CookieConsent";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
-const { enquiry, cookieConsent } = siteConfig;
+const { cookieConsent } = siteConfig;
 
-export default function SiteLayout({
+export default async function SiteLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const settings = await getSiteSettings();
+
   return (
     <>
       {children}
@@ -20,8 +23,8 @@ export default function SiteLayout({
         />
       )}
       <WhatsAppButton
-        number={enquiry.whatsappNumber}
-        message={enquiry.whatsappMessage}
+        number={settings.whatsapp_number}
+        message={settings.whatsapp_message}
       />
       <CookieConsent config={cookieConsent} />
     </>

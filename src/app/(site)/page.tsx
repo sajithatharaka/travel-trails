@@ -14,6 +14,7 @@ import {
   getActiveWelcomeSection,
   listGallery,
 } from "@/lib/content";
+import { getSiteSettings } from "@/lib/settings";
 import { resolveImage } from "@/lib/resolveImage";
 import { getInitials } from "@/lib/getInitials";
 import ImageSlot from "@/components/ImageSlot";
@@ -36,13 +37,20 @@ const iconShapeClass: Record<string, string> = {
 };
 
 export default async function HomePage() {
-  const [tour, reviews, dbFaqs, welcome, gallery] = await Promise.all([
+  const [tour, reviews, dbFaqs, welcome, gallery, settings] = await Promise.all([
     getFeaturedTour(),
     listReviews(),
     listSiteFaqs(),
     getActiveWelcomeSection(),
     listGallery(),
+    getSiteSettings(),
   ]);
+
+  const contactDetails = [
+    settings.contact_email,
+    settings.contact_phone,
+    settings.contact_address,
+  ].filter(Boolean);
 
   // FAQ — DB rows, falling back to the bundled config list.
   const faqItems =
@@ -502,15 +510,15 @@ export default async function HomePage() {
               {enquiry.subheadline}
             </p>
             <div className="flex flex-col gap-4">
-              {enquiry.contactDetails.map((detail) => (
+              {contactDetails.map((detail) => (
                 <div
-                  key={detail.label}
+                  key={detail}
                   className="flex items-center gap-3.5 text-[15px] text-ink"
                 >
                   <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[10px] bg-icon-tint">
                     <div className="h-2 w-2 rounded-full bg-deep-jungle" />
                   </div>
-                  {detail.label}
+                  {detail}
                 </div>
               ))}
             </div>

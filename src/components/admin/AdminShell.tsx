@@ -51,16 +51,15 @@ const NAV_GROUPS: NavGroup[] = [
     defaultOpen: true,
     items: [
       { label: "Tours", href: "/admin/tours", icon: Map },
-      { label: "Gallery", href: "/admin/gallery", icon: Images, soon: true },
-      { label: "Blog", href: "/admin/blog", icon: BookOpen, soon: true },
-      { label: "FAQs", href: "/admin/faqs", icon: CircleHelp, soon: true },
+      { label: "Gallery", href: "/admin/gallery", icon: Images },
+      { label: "Blog", href: "/admin/blog", icon: BookOpen },
+      { label: "FAQs", href: "/admin/faqs", icon: CircleHelp },
       {
         label: "Welcome Section",
         href: "/admin/welcome-section",
         icon: LayoutTemplate,
-        soon: true,
       },
-      { label: "Reviews", href: "/admin/reviews", icon: Star, soon: true },
+      { label: "Reviews", href: "/admin/reviews", icon: Star },
     ],
   },
   {
@@ -74,22 +73,22 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Settings",
     defaultOpen: false,
+    items: [{ label: "Site Settings", href: "/admin/settings", icon: Settings }],
+  },
+  {
+    label: "Admin",
+    defaultOpen: false,
+    adminOnly: true,
     items: [
-      { label: "Site Settings", href: "/admin/settings", icon: Settings, soon: true },
-      { label: "Notifications", href: "/admin/notifications", icon: Bell, soon: true, },
-      { label: "Users", href: "/admin/users", icon: Users, soon: true },
-      {
-        label: "Technical Notes",
-        href: "/admin/technical-notes",
-        icon: Server,
-        soon: true,
-      },
+      { label: "Notifications", href: "/admin/notifications", icon: Bell },
+      { label: "Users", href: "/admin/users", icon: Users },
+      { label: "Technical Notes", href: "/admin/technical-notes", icon: Server },
     ],
   },
 ];
 
 const SUPPORT: NavItem[] = [
-  { label: "User Guide", href: "/admin/user-guide", icon: BookMarked, soon: true },
+  { label: "User Guide", href: "/admin/user-guide", icon: BookMarked },
 ];
 
 function NavGroupSection({
@@ -148,14 +147,14 @@ export default function AdminShell({
   children: React.ReactNode;
   email: string;
 }) {
-  const { signOut } = useAuth();
+  const { signOut, isAdmin } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeMobile = () => setMobileOpen(false);
 
   const Sidebar = () => (
     <>
       <nav className="flex-1 space-y-2 overflow-y-auto p-3">
-        {NAV_GROUPS.map((group) => (
+        {NAV_GROUPS.filter((g) => !g.adminOnly || isAdmin).map((group) => (
           <NavGroupSection
             key={group.label}
             group={group}
@@ -164,14 +163,15 @@ export default function AdminShell({
         ))}
         <div className="space-y-0.5 border-t border-cream/10 pt-2">
           {SUPPORT.map(({ label, href, icon: Icon }) => (
-            <span
+            <Link
               key={href}
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-cream/40"
+              href={href}
+              onClick={closeMobile}
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-cream/60 transition-colors hover:bg-cream/10 hover:text-cream"
             >
               <Icon className="h-4 w-4 shrink-0" />
               {label}
-              <span className="ml-auto text-[10px] uppercase">soon</span>
-            </span>
+            </Link>
           ))}
         </div>
       </nav>

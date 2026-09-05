@@ -7,10 +7,17 @@
 
 import Link from "next/link";
 import { siteConfig } from "@/config";
+import { getSiteSettings } from "@/lib/settings";
 
 const { brand, footer } = siteConfig;
 
-export default function Footer() {
+export default async function Footer() {
+  const settings = await getSiteSettings();
+  const accent = brand.nameAccentPart;
+  const brandLead = settings.brand_name.endsWith(accent)
+    ? settings.brand_name.slice(0, -accent.length)
+    : `${settings.brand_name} `;
+
   return (
     <footer className="bg-deep-jungle px-5 pb-6 pt-10 sm:px-8 sm:pb-7 sm:pt-14">
       <div className="mx-auto max-w-[1180px]">
@@ -20,14 +27,16 @@ export default function Footer() {
         >
           <div>
             <div className="mb-2.5 font-serif text-[22px] text-surface">
-              {brand.name.replace(brand.nameAccentPart, "")}
-              <span className="text-terracotta">{brand.nameAccentPart}</span>
+              {brandLead}
+              {settings.brand_name.endsWith(accent) && (
+                <span className="text-terracotta">{accent}</span>
+              )}
             </div>
             <p
               className="max-w-[280px] text-[14.5px] leading-relaxed"
               style={{ color: "oklch(80% 0.02 160)" }}
             >
-              {footer.description}
+              {settings.footer_description}
             </p>
           </div>
           <div className="flex flex-wrap gap-8 sm:gap-14">
@@ -82,7 +91,7 @@ export default function Footer() {
           className="mx-auto max-w-[640px] pt-6 text-center text-[13px] leading-relaxed"
           style={{ color: "oklch(65% 0.02 160)" }}
         >
-          {footer.groupNote}
+          {settings.footer_group_note}
         </div>
         <div
           className="pt-2 text-center text-[13px]"
