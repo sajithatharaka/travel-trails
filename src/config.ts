@@ -34,6 +34,7 @@ export const siteConfig = {
   nav: {
     links: [
       { label: "Tours", href: "/tours" },
+      { label: "Blog", href: "/blog" },
       { label: "Why Us", href: "/#why" },
       { label: "FAQ", href: "/#faq" },
       { label: "Contact", href: "/contact" },
@@ -55,6 +56,10 @@ export const siteConfig = {
       "Every journey changes your location. The best journeys change your perspective. Welcome to Sri Lanka.",
     primaryCta: { label: "Browse Tours", href: "/tours" },
     secondaryCta: { label: "Customize My Trip", href: "#enquiry" },
+    // Bundled scenic photo used as the hero backdrop when the featured tour
+    // has no cover image. Never fall back to the route map here — it's a
+    // diagram, not a photograph, and reads as broken at full-bleed size.
+    fallbackImageId: "day-sigiriya",
   },
 
   about: {

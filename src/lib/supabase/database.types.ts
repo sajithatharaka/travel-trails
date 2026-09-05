@@ -240,6 +240,166 @@ export interface Database {
         >;
         Relationships: [];
       };
+      blogs: {
+        Row: {
+          id: string;
+          created_at: string;
+          updated_at: string;
+          slug: string;
+          title: string;
+          excerpt: string;
+          content: string;
+          category: string;
+          published_date: string;
+          image_url: string | null;
+          is_published: boolean;
+          meta_title: string | null;
+          meta_description: string | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+          slug: string;
+          title: string;
+          excerpt?: string;
+          content?: string;
+          category?: string;
+          published_date?: string;
+          image_url?: string | null;
+          is_published?: boolean;
+          meta_title?: string | null;
+          meta_description?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["blogs"]["Insert"]>;
+        Relationships: [];
+      };
+      faqs: {
+        Row: {
+          id: string;
+          created_at: string;
+          question: string;
+          answer: string;
+          category: string;
+          tour_id: string | null;
+          display_order: number;
+          is_visible: boolean;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          question: string;
+          answer: string;
+          category?: string;
+          tour_id?: string | null;
+          display_order?: number;
+          is_visible?: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["faqs"]["Insert"]>;
+        Relationships: [];
+      };
+      gallery: {
+        Row: {
+          id: string;
+          created_at: string;
+          alt_text: string;
+          category: string;
+          image_url: string | null;
+          tour_id: string | null;
+          display_order: number;
+          is_visible: boolean;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          alt_text?: string;
+          category?: string;
+          image_url?: string | null;
+          tour_id?: string | null;
+          display_order?: number;
+          is_visible?: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["gallery"]["Insert"]>;
+        Relationships: [];
+      };
+      reviews: {
+        Row: {
+          id: string;
+          created_at: string;
+          reviewer_name: string;
+          rating: number;
+          review_text: string;
+          source: string;
+          location: string | null;
+          is_visible: boolean;
+          display_order: number;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          reviewer_name: string;
+          rating?: number;
+          review_text: string;
+          source?: string;
+          location?: string | null;
+          is_visible?: boolean;
+          display_order?: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["reviews"]["Insert"]>;
+        Relationships: [];
+      };
+      welcome_sections: {
+        Row: {
+          id: string;
+          created_at: string;
+          badge_text: string;
+          heading: string;
+          paragraph_1: string;
+          paragraph_2: string;
+          image_1_url: string | null;
+          image_1_alt: string;
+          image_2_url: string | null;
+          image_2_alt: string;
+          image_3_url: string | null;
+          image_3_alt: string;
+          image_4_url: string | null;
+          image_4_alt: string;
+          display_order: number;
+          is_active: boolean;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          badge_text?: string;
+          heading: string;
+          paragraph_1?: string;
+          paragraph_2?: string;
+          image_1_url?: string | null;
+          image_1_alt?: string;
+          image_2_url?: string | null;
+          image_2_alt?: string;
+          image_3_url?: string | null;
+          image_3_alt?: string;
+          image_4_url?: string | null;
+          image_4_alt?: string;
+          display_order?: number;
+          is_active?: boolean;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["welcome_sections"]["Insert"]
+        >;
+        Relationships: [];
+      };
+      site_settings: {
+        Row: {
+          key: string;
+          value: unknown;
+          updated_at: string;
+        };
+        Insert: { key: string; value: unknown; updated_at?: string };
+        Update: Partial<Database["public"]["Tables"]["site_settings"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -261,3 +421,9 @@ export type ContactSubmissionRow =
 export type NotificationRecipientRow =
   Database["public"]["Tables"]["notification_recipients"]["Row"];
 export type BookingStatus = BookingRequestRow["status"];
+export type BlogRow = Database["public"]["Tables"]["blogs"]["Row"];
+export type FaqRow = Database["public"]["Tables"]["faqs"]["Row"];
+export type GalleryRow = Database["public"]["Tables"]["gallery"]["Row"];
+export type ReviewRow = Database["public"]["Tables"]["reviews"]["Row"];
+export type WelcomeSectionRow =
+  Database["public"]["Tables"]["welcome_sections"]["Row"];

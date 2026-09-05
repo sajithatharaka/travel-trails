@@ -8,6 +8,12 @@
 import Link from "next/link";
 import { siteConfig } from "@/config";
 import { getFeaturedTour, formatPriceFrom } from "@/lib/tours";
+import {
+  listReviews,
+  listSiteFaqs,
+  getActiveWelcomeSection,
+  listGallery,
+} from "@/lib/content";
 import { resolveImage } from "@/lib/resolveImage";
 import { getInitials } from "@/lib/getInitials";
 import ImageSlot from "@/components/ImageSlot";
@@ -15,6 +21,7 @@ import HeroSlider from "@/components/HeroSlider";
 import HeroCta from "@/components/HeroCta";
 import EnquiryForm from "@/components/EnquiryForm";
 import FaqAccordion from "@/components/FaqAccordion";
+import GalleryTicker from "@/components/GalleryTicker";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -28,24 +35,69 @@ const iconShapeClass: Record<string, string> = {
     "h-5 w-5 bg-deep-jungle [clip-path:polygon(50%_0,100%_100%,0_100%)]",
 };
 
-const faqJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: faq.items.map((item) => ({
-    "@type": "Question",
-    name: item.q,
-    acceptedAnswer: { "@type": "Answer", text: item.a },
-  })),
-};
-
 export default async function HomePage() {
-  const tour = await getFeaturedTour();
+  const [tour, reviews, dbFaqs, welcome, gallery] = await Promise.all([
+    getFeaturedTour(),
+    listReviews(),
+    listSiteFaqs(),
+    getActiveWelcomeSection(),
+    listGallery(),
+  ]);
+
+  // FAQ — DB rows, falling back to the bundled config list.
+  const faqItems =
+    dbFaqs.length > 0
+      ? dbFaqs.map((f) => ({ q: f.question, a: f.answer }))
+      : faq.items.map((i) => ({ q: i.q, a: i.a }));
+
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
+
+  // Testimonials — reviews table, falling back to config.
+  const reviewCards =
+    reviews.length > 0
+      ? reviews.map((r) => ({
+          quote: r.review_text,
+          name: r.reviewer_name,
+          trip: r.location ?? r.source,
+          avatarId: "",
+        }))
+      : testimonials.items.map((t) => ({
+          quote: t.quote,
+          name: t.name,
+          trip: t.trip,
+          avatarId: t.avatarId,
+        }));
+
+  // About block — active welcome_section, falling back to config.about.
+  const aboutBlock = welcome
+    ? {
+        label: welcome.badge_text,
+        headline: welcome.heading,
+        paragraphs: [welcome.paragraph_1, welcome.paragraph_2].filter(Boolean),
+        image: welcome.image_1_url || resolveImage("about"),
+        imageAlt: welcome.image_1_alt || "About Travel Trails",
+      }
+    : {
+        label: about.sectionLabel,
+        headline: about.headline,
+        paragraphs: [...about.paragraphs],
+        image: resolveImage("about"),
+        imageAlt: about.imgPlaceholder,
+      };
 
   const heroEyebrow = tour?.hero_eyebrow || hero.eyebrow;
   const heroHeadline = tour?.hero_headline || hero.headline;
   const heroSub = tour?.hero_subheadline || hero.subheadline;
   const heroImg =
-    tour?.cover_image_url || resolveImage("hero-1") || resolveImage("route-map");
+    tour?.cover_image_url || resolveImage(hero.fallbackImageId);
 
   const primaryCta = tour
     ? { label: "See This Itinerary", href: `/tours/${tour.slug}` }
@@ -142,18 +194,18 @@ export default async function HomePage() {
         </div>
       )}
 
-      {/* ─── ABOUT ────────────────────────────────────────── */}
+      {/* ─── ABOUT / WELCOME ──────────────────────────────── */}
       <section id="about" className="bg-surface px-5 py-16 sm:px-8 sm:py-24">
         <div className="mx-auto grid max-w-[1180px] gap-14 md:grid-cols-2 md:items-center">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-[.14em] text-terracotta">
-              {about.sectionLabel}
+              {aboutBlock.label}
             </p>
             <h2 className="mt-2.5 mb-5 font-serif text-[clamp(30px,3.6vw,44px)] leading-tight text-ink">
-              {about.headline}
+              {aboutBlock.headline}
             </h2>
             <div className="flex flex-col gap-4">
-              {about.paragraphs.map((p, i) => (
+              {aboutBlock.paragraphs.map((p, i) => (
                 <p key={i} className="text-base leading-relaxed text-ink-soft">
                   {p}
                 </p>
@@ -162,9 +214,9 @@ export default async function HomePage() {
           </div>
           <div className="aspect-[4/3] overflow-hidden rounded-[20px] md:order-2">
             <ImageSlot
-              src={resolveImage("about")}
-              alt={about.imgPlaceholder}
-              placeholder={about.imgPlaceholder}
+              src={aboutBlock.image}
+              alt={aboutBlock.imageAlt}
+              placeholder={aboutBlock.imageAlt}
             />
           </div>
         </div>
@@ -369,9 +421,9 @@ export default async function HomePage() {
             )}
           </div>
           <div className="grid gap-7 md:grid-cols-3">
-            {testimonials.items.map((t) => (
+            {reviewCards.slice(0, 6).map((t) => (
               <div
-                key={t.name}
+                key={t.name + t.quote.slice(0, 12)}
                 className="rounded-2xl bg-card-jungle p-8 text-surface"
               >
                 <div className="mb-3.5 tracking-[2px] text-terracotta">★★★★★</div>
@@ -384,7 +436,7 @@ export default async function HomePage() {
                 <div className="flex items-center gap-3">
                   <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full">
                     <ImageSlot
-                      src={resolveImage(t.avatarId)}
+                      src={t.avatarId ? resolveImage(t.avatarId) : null}
                       alt={t.name}
                       placeholder="Guest photo"
                       initials={getInitials(t.name)}
@@ -421,9 +473,20 @@ export default async function HomePage() {
               {faq.subheadline}
             </p>
           </div>
-          <FaqAccordion items={faq.items} />
+          <FaqAccordion items={faqItems} />
         </div>
       </section>
+
+      {/* ─── GALLERY ──────────────────────────────────────── */}
+      {gallery.length > 0 && (
+        <GalleryTicker
+          items={gallery.map((g) => ({
+            id: g.id,
+            src: g.image_url as string,
+            alt: g.alt_text,
+          }))}
+        />
+      )}
 
       {/* ─── ENQUIRY ──────────────────────────────────────── */}
       <section id="enquiry" className="bg-surface px-5 py-16 sm:px-8 sm:py-24">
