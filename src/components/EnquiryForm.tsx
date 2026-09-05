@@ -105,24 +105,70 @@ export default function EnquiryForm({
       className="grid grid-cols-1 gap-5 rounded-[20px] bg-section-tint p-6 sm:grid-cols-2 sm:p-10"
     >
       <div>
-        <label className={labelClasses}>Full Name</label>
-        <input type="text" name="name" required placeholder="Jane Doe" disabled={busy} className={inputClasses} />
+        <label className={labelClasses} htmlFor="enq-name">
+          Full Name
+        </label>
+        <input
+          id="enq-name"
+          data-testid="enquiry-name"
+          type="text"
+          name="name"
+          required
+          placeholder="Jane Doe"
+          disabled={busy}
+          className={inputClasses}
+        />
       </div>
       <div>
-        <label className={labelClasses}>Email</label>
-        <input type="email" name="email" required placeholder="jane@email.com" disabled={busy} className={inputClasses} />
+        <label className={labelClasses} htmlFor="enq-email">
+          Email
+        </label>
+        <input
+          id="enq-email"
+          data-testid="enquiry-email"
+          type="email"
+          name="email"
+          required
+          placeholder="jane@email.com"
+          disabled={busy}
+          className={inputClasses}
+        />
       </div>
       <div>
-        <label className={labelClasses}>Travel Date</label>
-        <input type="date" name="travel_date" disabled={busy} className={inputClasses} />
+        <label className={labelClasses} htmlFor="enq-date">
+          Travel Date
+        </label>
+        <input
+          id="enq-date"
+          data-testid="enquiry-travel-date"
+          type="date"
+          name="travel_date"
+          disabled={busy}
+          className={inputClasses}
+        />
       </div>
       <div>
-        <label className={labelClasses}>Travellers</label>
-        <input type="number" name="travellers" min="1" placeholder="2" disabled={busy} className={inputClasses} />
+        <label className={labelClasses} htmlFor="enq-travellers">
+          Travellers
+        </label>
+        <input
+          id="enq-travellers"
+          data-testid="enquiry-travellers"
+          type="number"
+          name="travellers"
+          min="1"
+          placeholder="2"
+          disabled={busy}
+          className={inputClasses}
+        />
       </div>
       <div className="sm:col-span-2">
-        <label className={labelClasses}>Message</label>
+        <label className={labelClasses} htmlFor="enq-message">
+          Message
+        </label>
         <textarea
+          id="enq-message"
+          data-testid="enquiry-message"
           name="message"
           placeholder={
             tourTitle

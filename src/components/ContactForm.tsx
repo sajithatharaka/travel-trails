@@ -68,23 +68,23 @@ export default function ContactForm({
     >
       <div>
         <label className={labelClasses}>Name</label>
-        <input type="text" name="name" required placeholder="Jane Doe" disabled={busy} className={inputClasses} />
+        <input data-testid="contact-name" type="text" name="name" required placeholder="Jane Doe" disabled={busy} className={inputClasses} />
       </div>
       <div>
         <label className={labelClasses}>Email</label>
-        <input type="email" name="email" required placeholder="jane@email.com" disabled={busy} className={inputClasses} />
+        <input data-testid="contact-email" type="email" name="email" required placeholder="jane@email.com" disabled={busy} className={inputClasses} />
       </div>
       <div>
         <label className={labelClasses}>Phone (optional)</label>
-        <input type="tel" name="phone" placeholder="+94 …" disabled={busy} className={inputClasses} />
+        <input data-testid="contact-phone" type="tel" name="phone" placeholder="+94 …" disabled={busy} className={inputClasses} />
       </div>
       <div>
         <label className={labelClasses}>Subject</label>
-        <input type="text" name="subject" placeholder="General Enquiry" disabled={busy} className={inputClasses} />
+        <input data-testid="contact-subject" type="text" name="subject" placeholder="General Enquiry" disabled={busy} className={inputClasses} />
       </div>
       <div className="sm:col-span-2">
         <label className={labelClasses}>Message</label>
-        <textarea name="message" required placeholder="How can we help?" disabled={busy} className={`${inputClasses} min-h-[120px] resize-y`} />
+        <textarea data-testid="contact-message" name="message" required placeholder="How can we help?" disabled={busy} className={`${inputClasses} min-h-[120px] resize-y`} />
       </div>
 
       {HAS_TURNSTILE && (

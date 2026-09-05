@@ -65,7 +65,4 @@ export async function getTourBySlug(
   return tours.find((t) => t.slug === slug) ?? null;
 }
 
-export function formatPriceFrom(usd: number | null | undefined): string | null {
-  if (usd == null) return null;
-  return `from $${Math.round(usd).toLocaleString("en-US")}`;
-}
+export { formatPriceFrom } from "@/lib/format";

@@ -3,6 +3,7 @@ import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { supabasePublic } from "@/lib/supabase/public";
 import { siteConfig } from "@/config";
+import { mergeSettings } from "@/lib/format";
 
 export const SETTINGS_TAG = "site-settings";
 
@@ -51,10 +52,5 @@ const load = unstable_cache(
 
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   const raw = await load();
-  const merged = { ...SETTINGS_DEFAULTS };
-  for (const key of Object.keys(SETTINGS_DEFAULTS) as (keyof SiteSettings)[]) {
-    const v = raw[key];
-    if (typeof v === "string" && v.trim()) merged[key] = v;
-  }
-  return merged;
+  return mergeSettings(SETTINGS_DEFAULTS, raw);
 });

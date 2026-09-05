@@ -4,6 +4,12 @@
 // and records the dispatch (dedupe_key makes retries idempotent).
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { buildBookingHtml, buildInquiryHtml } from "./template.ts";
+import {
+  isUuid,
+  dedupeKeyFor,
+  subjectFor,
+  type NotifyEvent as NotifyBody,
+} from "../_shared/pure.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -11,39 +17,11 @@ const CORS = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-type NotifyBody =
-  | { event_type: "new_booking"; booking_id: string }
-  | { event_type: "new_inquiry"; contact_submission_id: string }
-  | {
-      event_type: "booking_status_changed";
-      booking_id: string;
-      status: "confirmed" | "cancelled";
-    };
-
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), {
     status,
     headers: { ...CORS, "Content-Type": "application/json" },
   });
-
-const isUuid = (v: string) =>
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    v,
-  );
-
-const dedupeKeyFor = (b: NotifyBody) =>
-  b.event_type === "new_booking"
-    ? `new_booking:${b.booking_id}`
-    : b.event_type === "new_inquiry"
-      ? `new_inquiry:${b.contact_submission_id}`
-      : `booking_status_changed:${b.booking_id}:${b.status}`;
-
-const subjectFor = (b: NotifyBody) =>
-  b.event_type === "new_booking"
-    ? "New tour enquiry — Travel Trails"
-    : b.event_type === "new_inquiry"
-      ? "New contact message — Travel Trails"
-      : `Booking request ${b.status} — Travel Trails`;
 
 async function sendResend(args: {
   apiKey: string;

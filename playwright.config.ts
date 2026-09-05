@@ -17,11 +17,15 @@ export default defineConfig({
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
   ],
+  // Runs against a production build so it doesn't collide with a `next dev`
+  // lockfile. CI should `npm run build` first; locally this reuses .next.
   webServer: {
-    command: `npm run dev -- -p ${PORT}`,
+    command: process.env.CI
+      ? `npm run build && npm run start -- -p ${PORT}`
+      : `npm run start -- -p ${PORT}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 180_000,
     stdout: "ignore",
     stderr: "pipe",
   },
