@@ -14,8 +14,7 @@ import TurnstileWidget, {
   type TurnstileHandle,
 } from "@/components/TurnstileWidget";
 import { PREFILL_MESSAGE_EVENT } from "@/components/HeroCta";
-
-const HAS_TURNSTILE = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
+import { HAS_TURNSTILE } from "@/lib/turnstile";
 type Status = "idle" | "loading" | "success" | "error";
 
 export default function EnquiryForm({

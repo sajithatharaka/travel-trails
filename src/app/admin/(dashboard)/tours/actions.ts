@@ -14,4 +14,8 @@ export async function revalidateToursCache() {
   revalidateTag(TOURS_TAG, "max");
   revalidatePath("/");
   revalidatePath("/tours");
+  // Machine-readable route maps that list every published tour — statically
+  // rendered, so bust them explicitly rather than trusting tag propagation.
+  revalidatePath("/sitemap.xml");
+  revalidatePath("/llms.txt");
 }

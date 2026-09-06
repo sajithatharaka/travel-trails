@@ -2,8 +2,8 @@
 import LegalLayout from "@/components/LegalLayout";
 import { siteConfig } from "@/config";
 
-const { brand, enquiry } = siteConfig;
-const email = enquiry.contactDetails[0]?.label;
+const { brand, contact } = siteConfig;
+const email = contact.email;
 
 export const metadata = {
   title: "Privacy Policy",
@@ -13,7 +13,12 @@ export const metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <LegalLayout title="Privacy Policy" lastUpdated="August 6, 2026">
+    <LegalLayout
+      title="Privacy Policy"
+      lastUpdated="August 6, 2026"
+      path="/privacy"
+      description={metadata.description}
+    >
       <h2>1. Who we are</h2>
       <p>
         {brand.name} ("we", "us", "our") plans private, boutique travel

@@ -3,6 +3,7 @@ import { siteConfig } from "@/config";
 import { getSiteSettings } from "@/lib/settings";
 import CookieConsent from "@/components/CookieConsent";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import { HAS_TURNSTILE } from "@/lib/turnstile";
 
 const { cookieConsent } = siteConfig;
 
@@ -16,7 +17,7 @@ export default async function SiteLayout({
   return (
     <>
       {children}
-      {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && (
+      {HAS_TURNSTILE && (
         <Script
           src="https://challenges.cloudflare.com/turnstile/v0/api.js"
           strategy="afterInteractive"

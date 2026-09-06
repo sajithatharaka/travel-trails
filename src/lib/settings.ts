@@ -21,9 +21,9 @@ export type SiteSettings = {
 /** The keys the admin form manages, with config.ts as the fallback source. */
 export const SETTINGS_DEFAULTS: SiteSettings = {
   brand_name: siteConfig.brand.name,
-  contact_email: siteConfig.enquiry.contactDetails[0]?.label ?? "",
-  contact_phone: siteConfig.enquiry.contactDetails[1]?.label ?? "",
-  contact_address: siteConfig.enquiry.contactDetails[2]?.label ?? "",
+  contact_email: siteConfig.contact.email,
+  contact_phone: siteConfig.contact.phone,
+  contact_address: siteConfig.contact.addressLine,
   whatsapp_number: siteConfig.enquiry.whatsappNumber,
   whatsapp_message: siteConfig.enquiry.whatsappMessage,
   footer_description: siteConfig.footer.description,

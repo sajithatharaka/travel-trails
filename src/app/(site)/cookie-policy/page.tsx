@@ -2,8 +2,8 @@
 import LegalLayout from "@/components/LegalLayout";
 import { siteConfig } from "@/config";
 
-const { brand, enquiry } = siteConfig;
-const email = enquiry.contactDetails[0]?.label;
+const { brand, contact } = siteConfig;
+const email = contact.email;
 
 export const metadata = {
   title: "Cookie Policy",
@@ -13,7 +13,12 @@ export const metadata = {
 
 export default function CookiePolicyPage() {
   return (
-    <LegalLayout title="Cookie Policy" lastUpdated="August 6, 2026">
+    <LegalLayout
+      title="Cookie Policy"
+      lastUpdated="August 6, 2026"
+      path="/cookie-policy"
+      description={metadata.description}
+    >
       <h2>1. What are cookies?</h2>
       <p>
         Cookies (and similar local browser storage) are small pieces of

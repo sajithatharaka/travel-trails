@@ -8,6 +8,7 @@
 |---|---|
 | 2026-09-04 | Initial implementation. |
 | 2026-09-06 | Extracted pure edge-fn helpers to `_shared/pure.ts` for unit testing. |
+| 2026-09-06 | Bug fix: a placeholder `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (the `.env.example` `0x<site-key>` stand-in) mounted the widget with a key Cloudflare rejects inside `turnstile.render()`; on a client-side navigation to the homepage that throw hit the route error boundary and blanked the page (arriving via the `/#faq` nav link looked like a 404). Added `src/lib/turnstile.ts` as the single site-key source (placeholder-shaped values → "not configured"), and `TurnstileWidget` now try/catches `render()` so a bad key can never take down its route. |
 
 ## Overview
 
@@ -52,8 +53,15 @@ to any authenticated team member; **insert only to `service_role`**. Verified by
 
 ## Frontend
 
-- **`TurnstileWidget`** — reads `NEXT_PUBLIC_TURNSTILE_SITE_KEY`; renders nothing
-  when unset. `api.js` loaded once in `app/(site)/layout.tsx` when a key is set.
+- **`lib/turnstile.ts`** — resolves `NEXT_PUBLIC_TURNSTILE_SITE_KEY` once and
+  exports `TURNSTILE_SITE_KEY` / `HAS_TURNSTILE`. Placeholder-shaped values
+  (empty, `< >`, shorter than 8 chars) count as "not configured". Used by
+  `TurnstileWidget`, `EnquiryForm`, `ContactForm`, and the `(site)` layout so
+  they agree on whether Turnstile is on.
+- **`TurnstileWidget`** — renders nothing when no real key is configured. When a
+  key is set, `render()` is wrapped in try/catch: a rejected key is logged and
+  the widget stays empty, never bubbling into the route's error boundary.
+  `api.js` loaded once in `app/(site)/layout.tsx` when a key is set.
 - **`EnquiryForm`** → `submit-booking`. On the homepage `#enquiry` and each
   `/tours/[slug]` `#enquire` section (tour context attached). Inputs carry
   `data-testid` (`enquiry-name`, `enquiry-email`, …).
@@ -76,6 +84,11 @@ to any authenticated team member; **insert only to `service_role`**. Verified by
 - `tests/unit/notify-guard.test.ts` — `shouldNotifyStatusChange`.
 - `tests/components/EnquiryForm.test.tsx`, `ContactForm.test.tsx` — submit
   payload to the right function; function-level and transport errors surface.
+- `tests/unit/turnstile.test.ts` — placeholder / short / angle-bracketed keys
+  resolve to "not configured"; a real-looking key is trimmed and accepted.
+- `tests/components/TurnstileWidget.test.tsx` — a throwing `render()` is
+  swallowed (render tree survives, error logged); a placeholder key renders
+  nothing and never calls `turnstile.render()`.
 - `tests/e2e/public.spec.ts` — the contact form is present and functional.
 
 ## Known limitation

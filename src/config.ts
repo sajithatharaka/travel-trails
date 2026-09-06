@@ -10,6 +10,24 @@
 // "featured".
 // ============================================================
 
+// Single source of truth for the business's name / address / phone (NAP).
+// Consumed by JSON-LD (organizationSchema), the settings defaults, the legal
+// pages and — rebuilt into `enquiry.contactDetails` below — the contact UI.
+// Keep this consistent with the Google Business Profile.
+const contact = {
+  email: "hello@traveltrails.agency",
+  phone: "+94 74 362 0305",
+  // One-line form for display; structured form for schema.org PostalAddress.
+  addressLine: "362 D/6, New Kandy Road, Delgoda",
+  address: {
+    streetAddress: "362 D/6, New Kandy Road",
+    addressLocality: "Delgoda",
+    addressRegion: "Western Province",
+    postalCode: "11700",
+    addressCountry: "LK",
+  },
+} as const;
+
 export const siteConfig = {
   brand: {
     name: "Travel Trails",
@@ -18,17 +36,16 @@ export const siteConfig = {
       process.env.NEXT_PUBLIC_SITE_URL || "https://www.traveltrails.agency",
   },
 
+  contact,
+
   seo: {
     titleTemplate: "%s | Travel Trails",
-    keywords: [
-      "Sri Lanka tour package",
-      "Sri Lanka itinerary",
-      "private Sri Lanka tours",
-      "boutique Sri Lanka travel",
-      "7 day Sri Lanka trip",
-      "Sigiriya Kandy Ella Mirissa tour",
-    ],
-    ogImage: "/images/travel-trails-og-image.jpg",
+    // Social share image is generated at build by src/app/opengraph-image.tsx
+    // (a branded 1200×630 card) — no static asset to keep in sync here.
+    // Canonical profile URLs for the brand (Instagram, Facebook, YouTube, …).
+    // Emitted as Organization `sameAs` in JSON-LD; leave empty until the
+    // client confirms the accounts — an empty list is simply omitted.
+    sameAs: [] as string[],
   },
 
   nav: {
@@ -195,10 +212,11 @@ export const siteConfig = {
     headline: "Ready to Walk the Trail?",
     subheadline:
       "Tell us your travel dates and the tour you have in mind, and we'll hold your spot — or tailor it to suit you.",
+    // Derived from `contact` above so email / phone / address never drift.
     contactDetails: [
-      { label: "hello@traveltrails.agency" },
-      { label: "+94 74 362 0305" },
-      { label: "362 D/6, New Kandy Road, Delgoda" },
+      { label: contact.email },
+      { label: contact.phone },
+      { label: contact.addressLine },
     ],
     whatsappNumber: "94743620305",
     whatsappMessage:
@@ -227,7 +245,11 @@ export const siteConfig = {
     ],
     groupNote:
       "Travel Trails is part of a group of companies spanning the Hospitality and Manufacturing industries, including Valista Packaging, providers of corrugated carton solutions.",
-    legal: `© ${new Date().getFullYear()} Travel Trails. All rights reserved.`,
+    attribution: {
+      prefix: "Designed and Developed by",
+      companyName: "Booma Tech",
+      companyUrl: "https://boomatech.io/",
+    },
   },
 
   cookieConsent: {

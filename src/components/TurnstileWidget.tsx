@@ -6,6 +6,7 @@ import {
   useImperativeHandle,
   useRef,
 } from "react";
+import { TURNSTILE_SITE_KEY as SITE_KEY } from "@/lib/turnstile";
 
 declare global {
   interface Window {
@@ -16,8 +17,6 @@ declare global {
     };
   }
 }
-
-const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 export interface TurnstileHandle {
   reset: () => void;
@@ -42,12 +41,18 @@ const TurnstileWidget = forwardRef<
     const tryRender = () => {
       if (cancelled) return;
       if (window.turnstile && containerRef.current) {
-        widgetId.current = window.turnstile.render(containerRef.current, {
-          sitekey: SITE_KEY,
-          action: "travel-trails-form",
-          callback: onVerify,
-          "expired-callback": onExpire,
-        });
+        try {
+          widgetId.current = window.turnstile.render(containerRef.current, {
+            sitekey: SITE_KEY,
+            action: "travel-trails-form",
+            callback: onVerify,
+            "expired-callback": onExpire,
+          });
+        } catch (err) {
+          // A rejected site key (e.g. a misconfigured env) must never take
+          // down the route it renders in — log and leave the widget empty.
+          console.error("[TurnstileWidget] render failed", err);
+        }
       } else {
         setTimeout(tryRender, 120);
       }

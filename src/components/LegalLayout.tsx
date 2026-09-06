@@ -5,20 +5,38 @@
 // content passed in as children (see .legal-content in globals.css).
 // ------------------------------------------------------------
 
+import {
+  breadcrumbSchema,
+  webPageSchema,
+} from "@/lib/seo/structuredData";
+import JsonLd from "@/components/JsonLd";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export default function LegalLayout({
   title,
   lastUpdated,
+  path,
+  description,
   children,
 }: {
   title: string;
   lastUpdated: string;
+  path: string;
+  description?: string;
   children: React.ReactNode;
 }) {
+  const graph = [
+    webPageSchema({ path, name: title, description }),
+    breadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: title, path },
+    ]),
+  ];
+
   return (
     <main>
+      <JsonLd data={graph} />
       <Header />
       <section className="bg-surface px-5 py-14 sm:px-8 sm:py-20">
         <div className="mx-auto max-w-[760px]">

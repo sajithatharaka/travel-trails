@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/config";
+import {
+  breadcrumbSchema,
+  contactPageSchema,
+} from "@/lib/seo/structuredData";
+import JsonLd from "@/components/JsonLd";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
@@ -13,9 +18,18 @@ export const metadata: Metadata = {
   alternates: { canonical: "/contact" },
 };
 
+const graph = [
+  contactPageSchema(),
+  breadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Contact", path: "/contact" },
+  ]),
+];
+
 export default function ContactPage() {
   return (
     <main>
+      <JsonLd data={graph} />
       <Header />
       <section className="bg-surface px-5 py-16 sm:px-8 sm:py-24">
         <div className="mx-auto grid max-w-[1180px] gap-14 md:grid-cols-[0.9fr_1.1fr] md:items-start">

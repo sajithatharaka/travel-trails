@@ -3,22 +3,38 @@ import Link from "next/link";
 import { siteConfig } from "@/config";
 import { listPublishedTours, formatPriceFrom } from "@/lib/tours";
 import { resolveImage } from "@/lib/resolveImage";
+import {
+  breadcrumbSchema,
+  tourListingSchema,
+} from "@/lib/seo/structuredData";
+import JsonLd from "@/components/JsonLd";
 import ImageSlot from "@/components/ImageSlot";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+const description =
+  "Browse Travel Trails' private, boutique Sri Lanka itineraries — each one a starting point we tailor to your dates and pace.";
+
 export const metadata: Metadata = {
   title: "Sri Lanka Tours",
-  description:
-    "Browse Travel Trails' private, boutique Sri Lanka itineraries — each one a starting point we tailor to your dates and pace.",
+  description,
   alternates: { canonical: "/tours" },
 };
 
 export default async function ToursIndexPage() {
   const tours = await listPublishedTours();
 
+  const graph = [
+    tourListingSchema(tours, { name: "Sri Lanka Tours", description }),
+    breadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Tours", path: "/tours" },
+    ]),
+  ];
+
   return (
     <main>
+      <JsonLd data={graph} />
       <Header />
 
       <section className="bg-surface px-5 py-16 sm:px-8 sm:py-24">

@@ -13,6 +13,7 @@ const { brand, footer } = siteConfig;
 
 export default async function Footer() {
   const settings = await getSiteSettings();
+  const year = new Date().getFullYear();
   const accent = brand.nameAccentPart;
   const brandLead = settings.brand_name.endsWith(accent)
     ? settings.brand_name.slice(0, -accent.length)
@@ -94,10 +95,21 @@ export default async function Footer() {
           {settings.footer_group_note}
         </div>
         <div
-          className="pt-2 text-center text-[13px]"
+          className="pt-2 text-center text-[13px] leading-relaxed"
           style={{ color: "oklch(65% 0.02 160)" }}
         >
-          {footer.legal}
+          © {year} {settings.brand_name}. All rights reserved.
+          <br />
+          {footer.attribution.prefix}{" "}
+          <a
+            href={footer.attribution.companyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline transition-colors hover:text-surface"
+            data-testid="footer-attribution-link"
+          >
+            {footer.attribution.companyName}
+          </a>
         </div>
       </div>
     </footer>

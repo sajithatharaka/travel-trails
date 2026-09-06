@@ -59,16 +59,11 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## Deploying to Vercel
+## Deploying to Netlify
 
-```bash
-npm install -g vercel
-vercel
-```
-
-Add `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` under **Settings → Environment
-Variables**. Since there's no backend or database, this also deploys fine
-as a static export on any static host if you prefer.
+Deploys run through GitHub Actions → Netlify on push (see the CI/CD
+pipeline). Configure environment variables under **Site settings →
+Environment variables** in the Netlify dashboard.
 
 ---
 

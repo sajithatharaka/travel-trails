@@ -43,19 +43,31 @@ logs and returns `[]` on error:
 
 - Homepage: testimonials ← `reviews`; FAQ section + `FAQPage` JSON-LD ←
   `faqs`; About block ← active `welcome_sections` (any empty field falls back);
-  new **gallery ticker** section (`GalleryTicker`, duplicated items, hover-pause)
-  shown only when the gallery has photos. All fall back to `src/config.ts`.
+  new **gallery ticker** section (`GalleryTicker`, hover-pause) shown only when
+  the gallery has photos. It sits directly after the itinerary and above the
+  **Why Travel Trails** section (`#why`). The track pads small sets up to `MIN_TRACK_TILES` (8)
+  by repeating the images, then doubles that track so the `ticker` keyframe's
+  `-50%` translate loops seamlessly — this avoids the same photo being visible
+  twice on screen when only a couple of gallery rows exist. All fall back to
+  `src/config.ts`.
 - **`/blog`** — published-post grid. **`/blog/[slug]`** — Server Component,
   Markdown via `react-markdown` + `remark-gfm` (`components/Markdown.tsx`),
-  "More Articles" (3 most-recent excluding the current), `BlogPosting` JSON-LD,
-  `generateMetadata` from `meta_*`. Nav + `sitemap.ts` include blog.
+  "More Articles" (3 most-recent excluding the current), `generateMetadata` from
+  `meta_*`. Nav + `sitemap.ts` include blog.
+
+The `FAQPage`, `BlogPosting` and `CollectionPage` / `BreadcrumbList` JSON-LD for
+the homepage, blog list and blog detail is built by
+`src/lib/seo/structuredData.ts` and rendered via `<JsonLd>` — see
+[seo-structured-data.md](./seo-structured-data.md). Tour-scoped `faqs` are also
+surfaced as `FAQPage` on `/tours/[slug]`.
 
 ## Admin
 
 `revalidateContentCache` server action busts `CONTENT_TAG` after every edit.
 
 - **`/admin/faqs`** — list, reorder, hide/show, create/edit dialog, delete.
-- **`/admin/reviews`**, **`/admin/gallery`** (upload grid), **`/admin/welcome-section`**
+- **`/admin/reviews`**, **`/admin/gallery`** (upload grid — compact thumbnails,
+  2 columns on mobile up to 6 on wide screens), **`/admin/welcome-section`**
   (4 image uploads) — built on the shared `lib/admin/useCrudCollection` hook
   (list + create/update/delete/toggle/reorder mutations for a runtime table).
 - **`/admin/blog`** list + **`/admin/blog/[id]`** editor with
@@ -70,9 +82,16 @@ logs and returns `[]` on error:
   split by `tour_id`; `listRelatedPosts` excludes current + caps count;
   `getPostBySlug`; `getActiveWelcomeSection`; graceful `[]` on query error.
 - `tests/components/FaqAccordion.test.tsx` — default-open, switch, collapse.
+- `tests/components/GalleryTicker.test.tsx` — renders nothing when empty; pads a
+  2-image set to an 8-tile track doubled to 16; leaves a 10-image set unpadded
+  (doubled to 20); heading renders.
 - `tests/components/AdminFaqs.test.tsx` — renders the list ordered, marks a
   hidden row, creates a FAQ through the dialog (asserts the `insert` payload
   incl. `display_order`).
+- `tests/components/AdminGallery.test.tsx` — renders the photos from supabase and
+  asserts the compact multi-column thumbnail grid classes.
+- `tests/app/home-section-order.test.ts` — the gallery ticker renders after the
+  itinerary and before the `#why` section.
 - `tests/e2e/public.spec.ts` — `/blog` heading renders.
 
 ## Acceptance criteria

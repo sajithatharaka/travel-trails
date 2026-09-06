@@ -2,12 +2,24 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
-import { siteConfig } from "@/config";
 import {
   listPublishedPosts,
   getPostBySlug,
   listRelatedPosts,
 } from "@/lib/content";
+import { siteConfig } from "@/config";
+import { resolveImage } from "@/lib/resolveImage";
+import {
+  blogPostingSchema,
+  breadcrumbSchema,
+} from "@/lib/seo/structuredData";
+import { SITE_OG_IMAGE } from "@/lib/seo/openGraph";
+import JsonLd from "@/components/JsonLd";
+
+// Final fallback when a post has no meta_description and no excerpt — a page
+// must never ship without a <meta name="description">.
+const FALLBACK_DESCRIPTION =
+  "Sri Lanka travel guides, itineraries and tips from the Travel Trails team.";
 import ImageSlot from "@/components/ImageSlot";
 import Markdown from "@/components/Markdown";
 import Header from "@/components/Header";
@@ -27,7 +39,11 @@ export async function generateMetadata({
   const post = await getPostBySlug(slug);
   if (!post) return { title: "Post not found" };
   const title = post.meta_title || post.title;
-  const description = post.meta_description || post.excerpt;
+  const description =
+    post.meta_description || post.excerpt || FALLBACK_DESCRIPTION;
+  // Next merges neither openGraph nor twitter across segments, so both are set
+  // in full here — otherwise the Twitter card keeps the generic site values.
+  const images = [post.image_url ? { url: post.image_url } : SITE_OG_IMAGE];
   return {
     title,
     description,
@@ -37,9 +53,13 @@ export async function generateMetadata({
       title,
       description,
       url: `/blog/${post.slug}`,
+      siteName: siteConfig.brand.name,
+      locale: "en_US",
       publishedTime: post.published_date,
-      ...(post.image_url && { images: [{ url: post.image_url }] }),
+      modifiedTime: post.updated_at || post.published_date,
+      images,
     },
+    twitter: { card: "summary_large_image", title, description, images },
   };
 }
 
@@ -54,27 +74,18 @@ export default async function BlogPostPage({
 
   const related = await listRelatedPosts(slug, 3);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title,
-    description: post.meta_description || post.excerpt,
-    datePublished: post.published_date,
-    dateModified: post.updated_at,
-    articleSection: post.category,
-    ...(post.image_url && { image: post.image_url }),
-    author: { "@type": "Organization", name: siteConfig.brand.name },
-    publisher: { "@type": "Organization", name: siteConfig.brand.name },
-    mainEntityOfPage: `${siteConfig.brand.siteUrl}/blog/${post.slug}`,
-  };
+  const graph = [
+    blogPostingSchema(post, resolveImage("travel-trails-logo")),
+    breadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Blog", path: "/blog" },
+      { name: post.title, path: `/blog/${post.slug}` },
+    ]),
+  ];
 
   return (
     <main>
-      <script
-        type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={graph} />
       <Header />
 
       <article className="bg-surface px-5 py-14 sm:px-8 sm:py-20">

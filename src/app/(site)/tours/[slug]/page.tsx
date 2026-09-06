@@ -1,9 +1,22 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { listPublishedTours, getTourBySlug, formatPriceFrom } from "@/lib/tours";
+import { listTourFaqs } from "@/lib/content";
 import { siteConfig } from "@/config";
 import { resolveImage } from "@/lib/resolveImage";
+import {
+  breadcrumbSchema,
+  faqSchema,
+  tourSchema,
+} from "@/lib/seo/structuredData";
+import { SITE_OG_IMAGE } from "@/lib/seo/openGraph";
+import JsonLd from "@/components/JsonLd";
 import ImageSlot from "@/components/ImageSlot";
+
+// Final fallback when a tour has no meta_description and no summary — a page
+// must never ship without a <meta name="description">.
+const FALLBACK_DESCRIPTION =
+  "A private, boutique Sri Lanka itinerary by Travel Trails — tailored to your travel dates and pace.";
 import EnquiryForm from "@/components/EnquiryForm";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -23,7 +36,13 @@ export async function generateMetadata({
   if (!tour) return { title: "Tour not found" };
 
   const title = tour.meta_title || tour.title;
-  const description = tour.meta_description || tour.summary;
+  const description =
+    tour.meta_description || tour.summary || FALLBACK_DESCRIPTION;
+  // Next merges neither openGraph nor twitter across segments, so both are set
+  // in full here — otherwise the Twitter card keeps the generic site values.
+  const images = [
+    tour.cover_image_url ? { url: tour.cover_image_url } : SITE_OG_IMAGE,
+  ];
   return {
     title,
     description,
@@ -33,8 +52,11 @@ export async function generateMetadata({
       description,
       url: `/tours/${tour.slug}`,
       type: "article",
-      ...(tour.cover_image_url && { images: [{ url: tour.cover_image_url }] }),
+      siteName: siteConfig.brand.name,
+      locale: "en_US",
+      images,
     },
+    twitter: { card: "summary_large_image", title, description, images },
   };
 }
 
@@ -50,42 +72,25 @@ export default async function TourDetailPage({
   const priceFrom = formatPriceFrom(tour.price_from_usd);
   const coverImg = tour.cover_image_url || resolveImage("route-map");
 
-  const tripJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "TouristTrip",
-    name: tour.title,
-    description: tour.summary,
-    ...(tour.duration_days && { duration: `P${tour.duration_days}D` }),
-    itinerary: {
-      "@type": "ItemList",
-      itemListElement: tour.days.map((day, i) => ({
-        "@type": "ListItem",
-        position: i + 1,
-        item: {
-          "@type": "TouristAttraction",
-          name: day.title,
-          description: day.description,
-        },
-      })),
-    },
-    ...(priceFrom &&
-      tour.price_from_usd != null && {
-        offers: {
-          "@type": "Offer",
-          price: tour.price_from_usd,
-          priceCurrency: "USD",
-          availability: "https://schema.org/InStock",
-        },
-      }),
-  };
+  const tourFaqs = await listTourFaqs(tour.id);
+
+  const graph: object[] = [
+    tourSchema(tour),
+    breadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Tours", path: "/tours" },
+      { name: tour.title, path: `/tours/${tour.slug}` },
+    ]),
+  ];
+  if (tourFaqs.length > 0) {
+    graph.push(
+      faqSchema(tourFaqs.map((f) => ({ q: f.question, a: f.answer }))),
+    );
+  }
 
   return (
     <main>
-      <script
-        type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(tripJsonLd) }}
-      />
+      <JsonLd data={graph} />
       <Header />
 
       {/* Hero */}

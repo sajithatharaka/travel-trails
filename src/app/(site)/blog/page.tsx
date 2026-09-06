@@ -2,22 +2,39 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { format } from "date-fns";
 import { listPublishedPosts } from "@/lib/content";
+import {
+  blogListingSchema,
+  breadcrumbSchema,
+} from "@/lib/seo/structuredData";
+import JsonLd from "@/components/JsonLd";
 import ImageSlot from "@/components/ImageSlot";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+const description =
+  "Sri Lanka travel guides, itineraries and tips from the Travel Trails team.";
+
 export const metadata: Metadata = {
-  title: "Blog",
-  description:
-    "Sri Lanka travel guides, itineraries and tips from the Travel Trails team.",
+  // Query-targeted title; the visible <h1> stays "The Travel Trails Blog".
+  title: "Sri Lanka Travel Blog",
+  description,
   alternates: { canonical: "/blog" },
 };
 
 export default async function BlogIndexPage() {
   const posts = await listPublishedPosts();
 
+  const graph = [
+    blogListingSchema(posts, { name: "The Travel Trails Blog", description }),
+    breadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Blog", path: "/blog" },
+    ]),
+  ];
+
   return (
     <main>
+      <JsonLd data={graph} />
       <Header />
       <section className="bg-surface px-5 py-16 sm:px-8 sm:py-24">
         <div className="mx-auto max-w-[1180px]">

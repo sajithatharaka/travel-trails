@@ -7,6 +7,7 @@
 | Date | Change |
 |---|---|
 | 2026-09-06 | Initial implementation. |
+| 2026-09-06 | Footer: copyright + "Designed and Developed by Booma Tech" now render as one centred block (`©  <year> <brand>. All rights reserved.` then a `<br />` then the attribution, link `https://boomatech.io/`, opens in a new tab, `data-testid="footer-attribution-link"`). Year is computed at render time via `new Date().getFullYear()`; brand is `settings.brand_name`. Unused `siteConfig.footer.legal` string removed in favour of `siteConfig.footer.attribution` (`prefix` / `companyName` / `companyUrl`). |
 
 ## Site settings
 
@@ -28,6 +29,11 @@ Wired into the public site: **Footer** (brand + description + group note),
 contact list. `revalidateSettingsCache` server action busts the cache
 (`revalidatePath("/", "layout")`).
 
+The Footer's bottom block is a single centred element: the copyright line (year
+computed at render time via `new Date().getFullYear()`, brand from
+`settings.brand_name`), a `<br />`, then **"Designed and Developed by Booma
+Tech"** (`siteConfig.footer.attribution`, link `https://boomatech.io/`).
+
 - **`/admin/settings`** — one form for the managed keys, `upsert` on save.
   Inputs carry `data-testid` (`settings-<key>`).
 
@@ -42,7 +48,7 @@ Gated by `<RequireRole adminOnly>` (client) and, for server pages,
 - **`/admin/users`** — list `profiles`; create (calls the `manage-users` edge
   function with the caller's access token), change role
   (`admin` / `tour_designer`), delete. Cannot change or delete your own row.
-- **`/admin/technical-notes`** — static reference: Supabase, Vercel env vars,
+- **`/admin/technical-notes`** — static reference: Supabase, Netlify env vars,
   Turnstile (fail-closed note), Resend secrets, the shared
   `software.treetrails@gmail.com` analytics account, registrar, and the seeded
   first admin.
@@ -56,6 +62,9 @@ Gated by `<RequireRole adminOnly>` (client) and, for server pages,
 
 ## Tests
 
+- `tests/components/Footer.test.tsx` — renders the Booma Tech attribution link
+  (href, `target="_blank"`, `rel`) and a copyright line with the current year
+  (fake timers).
 - `tests/unit/format.test.ts` — `mergeSettings` override / ignore rules.
 - `tests/integration/edge-functions.test.ts` — `manage-users` is admin-only and
   only allows the two Travel Trails roles.

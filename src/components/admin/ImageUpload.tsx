@@ -56,8 +56,15 @@ export default function ImageUpload({
       <p className="text-sm font-medium text-earth">{label}</p>
       {value ? (
         <div className="relative w-full max-w-xs overflow-hidden rounded-lg border border-border">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={value} alt="" className="h-40 w-full object-cover" />
+          {/* Admin-only preview of an arbitrary uploaded URL (Supabase public
+              URL or a transient blob) — next/image's loader/config buys us
+              nothing here. eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={value}
+            alt="Uploaded image preview"
+            loading="lazy"
+            className="h-40 w-full object-cover"
+          />
           <button
             type="button"
             onClick={() => onChange(null)}

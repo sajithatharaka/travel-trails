@@ -11,6 +11,10 @@ export async function revalidateContentCache() {
   revalidateTag(CONTENT_TAG, "max");
   revalidatePath("/");
   revalidatePath("/blog");
+  // Machine-readable route maps that list every published post — statically
+  // rendered, so bust them explicitly rather than trusting tag propagation.
+  revalidatePath("/sitemap.xml");
+  revalidatePath("/llms.txt");
 }
 
 /** Bust the cached site-settings read after an admin edit. */

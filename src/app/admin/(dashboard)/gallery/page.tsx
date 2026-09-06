@@ -101,7 +101,7 @@ export default function AdminGalleryPage() {
         </div>
       ) : (
         <div
-          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
           data-testid="gallery-grid"
         >
           {sorted.map((g, i) => (
@@ -121,44 +121,44 @@ export default function AdminGalleryPage() {
                   />
                 )}
               </div>
-              <div className="flex items-center justify-between p-2">
-                <span className="truncate px-1 text-xs text-earth/60">
+              <div className="flex items-center justify-between p-1.5">
+                <span className="truncate px-1 text-[11px] text-earth/60">
                   {g.alt_text || g.category}
                 </span>
                 <div className="flex items-center">
                   <button
-                    className="p-1.5 text-earth/40 hover:text-forest disabled:opacity-30"
+                    className="p-1 text-earth/40 hover:text-forest disabled:opacity-30"
                     disabled={i === 0}
                     onClick={() => reorder.mutate({ row: g, dir: -1 })}
                   >
-                    <ArrowUp className="h-4 w-4" />
+                    <ArrowUp className="h-3.5 w-3.5" />
                   </button>
                   <button
-                    className="p-1.5 text-earth/40 hover:text-forest disabled:opacity-30"
+                    className="p-1 text-earth/40 hover:text-forest disabled:opacity-30"
                     disabled={i === sorted.length - 1}
                     onClick={() => reorder.mutate({ row: g, dir: 1 })}
                   >
-                    <ArrowDown className="h-4 w-4" />
+                    <ArrowDown className="h-3.5 w-3.5" />
                   </button>
                   <button
-                    className="p-1.5 text-earth/40 hover:text-forest"
+                    className="p-1 text-earth/40 hover:text-forest"
                     onClick={() => toggleVisible.mutate(g)}
                   >
                     {g.is_visible ? (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-3.5 w-3.5" />
                     ) : (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="h-3.5 w-3.5" />
                     )}
                   </button>
                   <button
-                    className="p-1.5 text-earth/40 hover:text-red-500"
+                    className="p-1 text-earth/40 hover:text-red-500"
                     onClick={() =>
                       remove.mutate(g.id, {
                         onSuccess: () => toast.success("Photo removed"),
                       })
                     }
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </div>

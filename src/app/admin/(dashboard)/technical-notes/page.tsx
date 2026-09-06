@@ -19,9 +19,9 @@ const SERVICES: Service[] = [
       "Migrations live in supabase/migrations/ and are applied with `npm run deploy:supabase` (scripts/deploy-supabase.sh) or `supabase db push`.",
   },
   {
-    name: "Vercel",
+    name: "Netlify",
     icon: Cloud,
-    description: "Hosts the Next.js app; deploys on push.",
+    description: "Hosts the Next.js app; deploys on push via GitHub Actions.",
     detail:
       "Env vars: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_TURNSTILE_SITE_KEY.",
   },
@@ -30,7 +30,7 @@ const SERVICES: Service[] = [
     icon: Server,
     description: "Bot protection on the enquiry and contact forms.",
     detail:
-      "Site key is a Vercel env var; TURNSTILE_SECRET_KEY is a Supabase Function secret (`supabase secrets set`). Fail-closed: forms reject every submission if the secret is unset.",
+      "Site key is a Netlify env var; TURNSTILE_SECRET_KEY is a Supabase Function secret (`supabase secrets set`). Fail-closed: forms reject every submission if the secret is unset.",
   },
   {
     name: "Resend",

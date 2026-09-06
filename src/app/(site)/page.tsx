@@ -17,6 +17,8 @@ import {
 import { getSiteSettings } from "@/lib/settings";
 import { resolveImage } from "@/lib/resolveImage";
 import { getInitials } from "@/lib/getInitials";
+import { faqSchema, webPageSchema } from "@/lib/seo/structuredData";
+import JsonLd from "@/components/JsonLd";
 import ImageSlot from "@/components/ImageSlot";
 import HeroSlider from "@/components/HeroSlider";
 import HeroCta from "@/components/HeroCta";
@@ -58,15 +60,16 @@ export default async function HomePage() {
       ? dbFaqs.map((f) => ({ q: f.question, a: f.answer }))
       : faq.items.map((i) => ({ q: i.q, a: i.a }));
 
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faqItems.map((item) => ({
-      "@type": "Question",
-      name: item.q,
-      acceptedAnswer: { "@type": "Answer", text: item.a },
-    })),
-  };
+  const homeGraph = [
+    webPageSchema({
+      path: "/",
+      name: `${siteConfig.brand.name} | Private Sri Lanka Journeys`,
+      description:
+        "Private, boutique journeys across Sri Lanka. Planned by locals, for travellers who want more than a checklist.",
+      speakableSelectors: ["#about h2", "#about p", "#faq"],
+    }),
+    faqSchema(faqItems),
+  ];
 
   // Testimonials — reviews table, falling back to config.
   const reviewCards =
@@ -134,11 +137,7 @@ export default async function HomePage() {
 
   return (
     <main>
-      <script
-        type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
+      <JsonLd data={homeGraph} />
 
       <Header />
 
@@ -373,6 +372,17 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ─── GALLERY ──────────────────────────────────────── */}
+      {gallery.length > 0 && (
+        <GalleryTicker
+          items={gallery.map((g) => ({
+            id: g.id,
+            src: g.image_url as string,
+            alt: g.alt_text,
+          }))}
+        />
+      )}
+
       {/* ─── WHY ──────────────────────────────────────────── */}
       <section id="why" className="bg-surface px-5 py-16 sm:px-8 sm:py-24">
         <div className="mx-auto max-w-[1180px]">
@@ -484,17 +494,6 @@ export default async function HomePage() {
           <FaqAccordion items={faqItems} />
         </div>
       </section>
-
-      {/* ─── GALLERY ──────────────────────────────────────── */}
-      {gallery.length > 0 && (
-        <GalleryTicker
-          items={gallery.map((g) => ({
-            id: g.id,
-            src: g.image_url as string,
-            alt: g.alt_text,
-          }))}
-        />
-      )}
 
       {/* ─── ENQUIRY ──────────────────────────────────────── */}
       <section id="enquiry" className="bg-surface px-5 py-16 sm:px-8 sm:py-24">

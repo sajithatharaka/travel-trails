@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config";
 
+const siteUrl = siteConfig.brand.siteUrl.replace(/\/$/, "");
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
@@ -8,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: "/admin",
     },
-    sitemap: `${siteConfig.brand.siteUrl}/sitemap.xml`,
+    sitemap: `${siteUrl}/sitemap.xml`,
   };
 }

@@ -2,8 +2,8 @@
 import LegalLayout from "@/components/LegalLayout";
 import { siteConfig } from "@/config";
 
-const { brand, enquiry } = siteConfig;
-const email = enquiry.contactDetails[0]?.label;
+const { brand, contact } = siteConfig;
+const email = contact.email;
 
 export const metadata = {
   title: "Terms & Conditions",
@@ -13,7 +13,12 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <LegalLayout title="Terms & Conditions" lastUpdated="August 6, 2026">
+    <LegalLayout
+      title="Terms & Conditions"
+      lastUpdated="August 6, 2026"
+      path="/terms"
+      description={metadata.description}
+    >
       <h2>1. Booking your trip</h2>
       <p>
         Submitting an enquiry through this Site does not confirm a booking.
@@ -73,7 +78,7 @@ export default function TermsPage() {
       <h2>8. Governing law</h2>
       <p>
         These terms are governed by the laws of Sri Lanka. {brand.name} is
-        based in Colombo, Sri Lanka.
+        based in Delgoda, Sri Lanka.
       </p>
 
       <h2>9. Contact us</h2>

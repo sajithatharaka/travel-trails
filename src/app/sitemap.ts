@@ -3,7 +3,14 @@ import { siteConfig } from "@/config";
 import { listPublishedTours } from "@/lib/tours";
 import { listPublishedPosts } from "@/lib/content";
 
-const { siteUrl } = siteConfig.brand;
+const siteUrl = siteConfig.brand.siteUrl.replace(/\/$/, "");
+
+// The tour/post lists come from `unstable_cache` (tag-revalidated on admin
+// publish). Give the sitemap route its own hourly revalidate as a safety net
+// so a newly published tour or post can never be more than an hour stale even
+// if tag propagation to this static route misses. Admin actions also call
+// `revalidatePath("/sitemap.xml")` for an immediate refresh.
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date();
