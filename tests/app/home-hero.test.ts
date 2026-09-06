@@ -22,6 +22,15 @@ describe("homepage hero fallback image", () => {
     expect(existsSync(join(process.cwd(), "public", url!))).toBe(true);
   });
 
+  it("does not render a price chip in the hero CTA row", () => {
+    const src = readFileSync(
+      join(process.cwd(), "src/app/(site)/page.tsx"),
+      "utf8",
+    );
+    expect(src).not.toContain("/ person");
+    expect(src).not.toContain("formatPriceFrom");
+  });
+
   it("the cover-image seed migration uses a real scenic photo", () => {
     const sql = readFileSync(
       join(

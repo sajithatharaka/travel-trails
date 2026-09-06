@@ -7,11 +7,7 @@
 
 import Link from "next/link";
 import { siteConfig } from "@/config";
-import {
-  getFeaturedTour,
-  listFeaturedTrails,
-  formatPriceFrom,
-} from "@/lib/tours";
+import { getFeaturedTour, listFeaturedTrails } from "@/lib/tours";
 import {
   listReviews,
   listSiteFaqs,
@@ -122,8 +118,6 @@ export default async function HomePage() {
     ? { label: "See This Itinerary", href: `/tours/${tour.slug}` }
     : hero.primaryCta;
 
-  const priceFrom = formatPriceFrom(tour?.price_from_usd);
-
   return (
     <main>
       <JsonLd data={homeGraph} />
@@ -164,11 +158,6 @@ export default async function HomePage() {
             className="inline-flex items-center rounded-full border-[1.5px] px-7 py-[14px] text-[15px] font-semibold text-surface"
             style={{ borderColor: "oklch(99% 0.01 90 / 0.7)" }}
           />
-          {priceFrom && (
-            <span className="text-[14px] font-medium text-surface/80">
-              {priceFrom} / person
-            </span>
-          )}
         </div>
       </HeroSlider>
 
