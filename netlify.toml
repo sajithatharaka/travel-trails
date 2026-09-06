@@ -1,0 +1,21 @@
+# Netlify build + Next.js Runtime.
+#
+# This is a Next.js 16 App Router app with SSR (server components, Supabase
+# SSR, Resend, dynamic routes) — it is NOT a static export. Netlify must run
+# the Next.js Runtime to serve the routes as functions; without it Netlify
+# serves the raw `.next` folder as static files and every path 404s
+# ("Page not found").
+#
+# The plugin block below makes Netlify install and enable the runtime on
+# every build regardless of dashboard auto-detection. Leave the dashboard
+# "Publish directory" as `.next` (Runtime v5 expects that).
+
+[build]
+  command = "npm run build"
+
+[build.environment]
+  # Next 16 requires a modern Node. Pin it so local and CI match.
+  NODE_VERSION = "22"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
