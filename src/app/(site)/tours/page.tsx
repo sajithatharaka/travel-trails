@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { siteConfig } from "@/config";
-import { listPublishedTours, formatPriceFrom } from "@/lib/tours";
-import { resolveImage } from "@/lib/resolveImage";
+import { listPublishedTours } from "@/lib/tours";
 import {
   breadcrumbSchema,
   tourListingSchema,
 } from "@/lib/seo/structuredData";
 import JsonLd from "@/components/JsonLd";
-import ImageSlot from "@/components/ImageSlot";
+import TourCard from "@/components/TourCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -67,51 +66,9 @@ export default async function ToursIndexPage() {
             </div>
           ) : (
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {tours.map((tour) => {
-                const priceFrom = formatPriceFrom(tour.price_from_usd);
-                return (
-                  <Link
-                    key={tour.id}
-                    href={`/tours/${tour.slug}`}
-                    className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-surface transition-shadow hover:shadow-lg"
-                  >
-                    <div className="aspect-[4/3] overflow-hidden">
-                      <ImageSlot
-                        src={tour.cover_image_url || resolveImage("route-map")}
-                        alt={tour.title}
-                        placeholder={tour.title}
-                        imgClassName="transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </div>
-                    <div className="flex flex-1 flex-col p-6">
-                      <div className="mb-2 flex flex-wrap items-center gap-2 text-[12px] font-semibold uppercase tracking-[.08em] text-ink-soft">
-                        {tour.duration_days && (
-                          <span>{tour.duration_days} days</span>
-                        )}
-                        {tour.destination_count && (
-                          <span>· {tour.destination_count} destinations</span>
-                        )}
-                      </div>
-                      <h2 className="mb-2 font-serif text-[22px] leading-tight text-ink">
-                        {tour.title}
-                      </h2>
-                      <p className="mb-4 flex-1 text-[14.5px] leading-relaxed text-ink-soft">
-                        {tour.summary}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        {priceFrom && (
-                          <span className="text-[14px] font-semibold text-deep-jungle">
-                            {priceFrom}
-                          </span>
-                        )}
-                        <span className="text-[14px] font-semibold text-terracotta group-hover:underline">
-                          View itinerary →
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
+              {tours.map((tour) => (
+                <TourCard key={tour.id} tour={tour} />
+              ))}
             </div>
           )}
 

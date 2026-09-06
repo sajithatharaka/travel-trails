@@ -7,6 +7,7 @@
 | Date | Change |
 |---|---|
 | 2026-09-06 | Initial implementation. |
+| 2026-09-06 | Fix: blog editor now invalidates the `["admin-blogs"]` React Query cache on save, so a new/edited post appears on `/admin/blog` without a manual page refresh. |
 
 ## Overview
 
@@ -41,7 +42,9 @@ logs and returns `[]` on error:
 
 ## Public wiring
 
-- Homepage: testimonials ← `reviews`; FAQ section + `FAQPage` JSON-LD ←
+- Homepage: testimonials ← `reviews` (rendered as a pause-on-hover marquee of
+  all visible reviews — see [home-testimonials-marquee.md](./home-testimonials-marquee.md));
+  FAQ section + `FAQPage` JSON-LD ←
   `faqs`; About block ← active `welcome_sections` (any empty field falls back);
   new **gallery ticker** section (`GalleryTicker`, hover-pause) shown only when
   the gallery has photos. It sits directly after the itinerary and above the
@@ -72,7 +75,10 @@ surfaced as `FAQPage` on `/tours/[slug]`.
   (list + create/update/delete/toggle/reorder mutations for a runtime table).
 - **`/admin/blog`** list + **`/admin/blog/[id]`** editor with
   `MarkdownEditor` (write / preview toggle), cover image, excerpt, SEO fields,
-  publish toggle. `slugify` shared via `lib/slug.ts`.
+  publish toggle. `slugify` shared via `lib/slug.ts`. On save the editor
+  invalidates the `["admin-blogs"]` (and, when editing, `["admin-blog", id]`)
+  React Query keys before navigating back, so the list reflects the change
+  without a manual refresh despite the 30s `staleTime`.
 - Sidebar: all Content items live (no more "soon").
 - All form inputs carry `data-testid`.
 
@@ -93,6 +99,8 @@ surfaced as `FAQPage` on `/tours/[slug]`.
 - `tests/app/home-section-order.test.ts` — the gallery ticker renders after the
   itinerary and before the `#why` section.
 - `tests/e2e/public.spec.ts` — `/blog` heading renders.
+- `tests/components/AdminBlogEditor.test.tsx` — creating a post inserts into
+  `blogs` and invalidates the `["admin-blogs"]` list query.
 
 ## Acceptance criteria
 

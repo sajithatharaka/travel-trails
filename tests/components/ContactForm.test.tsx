@@ -34,7 +34,7 @@ describe("<ContactForm />", () => {
     expect(await screen.findByText("Message sent")).toBeInTheDocument();
   });
 
-  it("shows the transport error when invoke fails", async () => {
+  it("shows a friendly generic message instead of the raw transport error", async () => {
     invoke.mockResolvedValue({ data: null, error: { message: "network down" } });
     const user = userEvent.setup();
 
@@ -44,6 +44,35 @@ describe("<ContactForm />", () => {
     await user.type(screen.getByTestId("contact-message"), "hi");
     await user.click(screen.getByRole("button", { name: /send message/i }));
 
-    expect(await screen.findByText("network down")).toBeInTheDocument();
+    expect(
+      await screen.findByText(/couldn't send your message just now/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("network down")).not.toBeInTheDocument();
+  });
+
+  it("reads the function's error body on a non-2xx response", async () => {
+    invoke.mockResolvedValue({
+      data: null,
+      error: {
+        name: "FunctionsHttpError",
+        message: "Edge Function returned a non-2xx status code",
+        context: new Response(
+          JSON.stringify({ error: "name, email and message are required" }),
+          { status: 400 },
+        ),
+      },
+    });
+    const user = userEvent.setup();
+
+    render(<ContactForm successMessage="ok" />);
+    await user.type(screen.getByTestId("contact-name"), "X");
+    await user.type(screen.getByTestId("contact-email"), "x@example.com");
+    await user.type(screen.getByTestId("contact-message"), "hi");
+    await user.click(screen.getByRole("button", { name: /send message/i }));
+
+    expect(
+      await screen.findByText(/fill in your name, email and message/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/non-2xx status code/i)).not.toBeInTheDocument();
   });
 });

@@ -30,7 +30,7 @@ const SERVICES: Service[] = [
     icon: Server,
     description: "Bot protection on the enquiry and contact forms.",
     detail:
-      "Site key is a Netlify env var; TURNSTILE_SECRET_KEY is a Supabase Function secret (`supabase secrets set`). Fail-closed: forms reject every submission if the secret is unset.",
+      "Site key is a Netlify env var; TURNSTILE_SECRET_KEY and TURNSTILE_ALLOWED_HOSTNAMES (comma-separated live hostnames, no localhost) are Supabase Function secrets (`supabase secrets set`). Fail-closed: the edge functions reject every submission unless the secret is set, the token is well-formed, and siteverify returns success + the expected action + an allowed hostname. Local dev only: TURNSTILE_ALLOW_LOCALHOST=true adds the loopback hosts to the allowlist — never set it in production.",
   },
   {
     name: "Resend",
@@ -70,19 +70,6 @@ export default async function TechnicalNotesPage() {
         <p className="mt-1 text-earth/60">
           Third-party services and infrastructure behind the Travel Trails
           platform. Keep confidential.
-        </p>
-      </div>
-
-      <div className="mb-8 rounded-lg border border-amber-200 bg-amber-50 p-4">
-        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-amber-700">
-          First admin
-        </p>
-        <p className="font-mono text-sm font-medium text-amber-900">
-          sajithatharaka@gmail.com
-        </p>
-        <p className="mt-1 text-xs text-amber-700">
-          Seeded as admin by the profiles migration. Other accounts are created
-          under Users.
         </p>
       </div>
 

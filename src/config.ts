@@ -79,6 +79,15 @@ export const siteConfig = {
     fallbackImageId: "day-sigiriya",
   },
 
+  // Homepage "featured trails" grid — up to 4 tour tiles + a link to /tours.
+  featuredTrails: {
+    sectionLabel: "Our Journeys",
+    headline: "Trails to Start From",
+    subheadline:
+      "Each one is a private, boutique route we tailor to your dates and pace. Pick a starting point.",
+    viewAllLabel: "View all tours",
+  },
+
   about: {
     sectionLabel: "About Travel Trails",
     headline: "Rooted in Sri Lankan Hospitality",
@@ -211,7 +220,7 @@ export const siteConfig = {
     sectionLabel: "Get In Touch",
     headline: "Ready to Walk the Trail?",
     subheadline:
-      "Tell us your travel dates and the tour you have in mind, and we'll hold your spot — or tailor it to suit you.",
+      "Tell us your travel dates and the tour you have in mind, and we'll hold your spot or tailor it to suit you.",
     // Derived from `contact` above so email / phone / address never drift.
     contactDetails: [
       { label: contact.email },

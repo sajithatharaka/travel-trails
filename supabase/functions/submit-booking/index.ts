@@ -57,6 +57,15 @@ Deno.serve(async (req) => {
   if (!first_name || !email) {
     return jsonResponse({ error: "first_name and email are required" }, 400);
   }
+  // A travel date is optional, but when given it must be a real future date
+  // (strictly after today, UTC). Mirrors `isFutureTravelDate` in
+  // `src/lib/travelDate.ts`.
+  if (travel_date != null && travel_date !== "") {
+    const todayUtc = new Date().toISOString().slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(travel_date) || travel_date <= todayUtc) {
+      return jsonResponse({ error: "travel_date must be in the future" }, 400);
+    }
+  }
 
   const verified = await verifyTurnstile(
     turnstileToken,

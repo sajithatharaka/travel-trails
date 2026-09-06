@@ -6,7 +6,10 @@ import {
   useImperativeHandle,
   useRef,
 } from "react";
-import { TURNSTILE_SITE_KEY as SITE_KEY } from "@/lib/turnstile";
+import {
+  TURNSTILE_SITE_KEY as SITE_KEY,
+  TURNSTILE_ACTION,
+} from "@/lib/turnstile";
 
 declare global {
   interface Window {
@@ -44,7 +47,7 @@ const TurnstileWidget = forwardRef<
         try {
           widgetId.current = window.turnstile.render(containerRef.current, {
             sitekey: SITE_KEY,
-            action: "travel-trails-form",
+            action: TURNSTILE_ACTION,
             callback: onVerify,
             "expired-callback": onExpire,
           });

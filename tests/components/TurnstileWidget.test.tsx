@@ -35,6 +35,22 @@ describe("<TurnstileWidget />", () => {
     errSpy.mockRestore();
   });
 
+  it("renders the widget with the shared action name", async () => {
+    const renderSpy = vi.fn(() => "wid-1");
+    window.turnstile = { render: renderSpy, reset: vi.fn(), remove: vi.fn() };
+
+    const Widget = await loadWidget("1x00000000000000000000AA");
+    render(<Widget onVerify={vi.fn()} />);
+
+    expect(renderSpy).toHaveBeenCalledWith(
+      expect.any(HTMLElement),
+      expect.objectContaining({
+        sitekey: "1x00000000000000000000AA",
+        action: "travel-trails-form",
+      }),
+    );
+  });
+
   it("renders nothing (and never touches turnstile) for a placeholder key", async () => {
     const renderSpy = vi.fn();
     window.turnstile = { render: renderSpy, reset: vi.fn(), remove: vi.fn() };

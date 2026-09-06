@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/slug";
@@ -49,6 +49,7 @@ const EMPTY: Form = {
 
 export default function BlogEditorPage() {
   const router = useRouter();
+  const qc = useQueryClient();
   const { id } = useParams<{ id: string }>();
   const isNew = id === "new";
 
@@ -123,6 +124,12 @@ export default function BlogEditorPage() {
         if (error) throw error;
       }
       await revalidateContentCache().catch(() => {});
+      // Refetch the admin list so the new/edited post shows without a manual
+      // page refresh (the list query is cached with a 30s staleTime).
+      await qc.invalidateQueries({ queryKey: ["admin-blogs"] });
+      if (!isNew) {
+        await qc.invalidateQueries({ queryKey: ["admin-blog", id] });
+      }
       toast.success(isNew ? "Post created" : "Post saved");
       router.push("/admin/blog");
       router.refresh();

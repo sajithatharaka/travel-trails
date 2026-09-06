@@ -26,6 +26,14 @@ describe("submit-booking edge function", () => {
     expect(src).toMatch(/Verification failed/);
   });
 
+  it("rejects a non-future travel_date before inserting", () => {
+    expect(src).toMatch(/travel_date must be in the future/);
+    expect(src).toMatch(/travel_date <= todayUtc/);
+    expect(src.indexOf("travel_date must be in the future")).toBeLessThan(
+      src.indexOf(".from(\"booking_requests\").insert"),
+    );
+  });
+
   it("inserts with the service-role key", () => {
     expect(src).toMatch(/SUPABASE_SERVICE_ROLE_KEY/);
   });
@@ -73,13 +81,47 @@ describe("_shared/turnstile helper", () => {
   const src = read("supabase/functions/_shared/turnstile.ts");
 
   it("fails closed when the secret is not configured", () => {
-    expect(src).toMatch(/if \(!secret\) return false/);
+    expect(src).toMatch(/const secret = Deno\.env\.get\("TURNSTILE_SECRET_KEY"\)/);
+    expect(src).toMatch(/if \(!secret\) \{[\s\S]*?return false;/);
   });
 
   it("calls Cloudflare siteverify", () => {
     expect(src).toMatch(
       /challenges\.cloudflare\.com\/turnstile\/v0\/siteverify/,
     );
+  });
+
+  it("requires success AND the expected action AND an allowed hostname", () => {
+    expect(src).toMatch(/TURNSTILE_ACTION = "travel-trails-form"/);
+    expect(src).toMatch(/result\.success !== true/);
+    expect(src).toMatch(/result\.action !== TURNSTILE_ACTION/);
+    expect(src).toMatch(/!hostnames\.has\(result\.hostname\)/);
+  });
+
+  it("logs the reason for every rejection (diagnostics)", () => {
+    expect(src).toMatch(/error-codes/);
+    expect(src).toMatch(/\[turnstile\]/);
+  });
+
+  it("reads the hostname allowlist from TURNSTILE_ALLOWED_HOSTNAMES", () => {
+    expect(src).toMatch(/Deno\.env\.get\("TURNSTILE_ALLOWED_HOSTNAMES"\)/);
+  });
+
+  it("adds loopback hosts only when TURNSTILE_ALLOW_LOCALHOST is true", () => {
+    expect(src).toMatch(
+      /Deno\.env\.get\("TURNSTILE_ALLOW_LOCALHOST"\) === "true"/,
+    );
+    expect(src).toMatch(/LOCALHOST_HOSTNAMES = \[/);
+    expect(src).toMatch(/"127\.0\.0\.1"/);
+  });
+
+  it("fails closed on a malformed token or an empty hostname allowlist", () => {
+    expect(src).toMatch(/token\.length > 2048/);
+    expect(src).toMatch(/hostnames\.size === 0/);
+  });
+
+  it("bounds the siteverify call with a timeout", () => {
+    expect(src).toMatch(/AbortSignal\.timeout\(/);
   });
 });
 

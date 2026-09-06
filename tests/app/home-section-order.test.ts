@@ -3,8 +3,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 // Regression guard: the homepage gallery ticker must sit above the "Why
-// Travel Trails" section (after the itinerary, before WHY / testimonials).
-// See docs/requirements/phase-3-content-cms.md → "Public wiring".
+// Travel Trails" section (after the featured-trails grid, before WHY /
+// testimonials). See docs/requirements/phase-3-content-cms.md → "Public wiring".
 describe("homepage section order", () => {
   const source = readFileSync(
     join(process.cwd(), "src/app/(site)/page.tsx"),
@@ -20,11 +20,11 @@ describe("homepage section order", () => {
     expect(galleryIndex).toBeLessThan(whyIndex);
   });
 
-  it("renders the gallery ticker after the itinerary section", () => {
-    const itineraryIndex = source.indexOf('id="itinerary"');
+  it("renders the gallery ticker after the featured-trails section", () => {
+    const trailsIndex = source.indexOf('id="featured-trails"');
     const galleryIndex = source.indexOf("<GalleryTicker");
 
-    expect(itineraryIndex).toBeGreaterThan(-1);
-    expect(galleryIndex).toBeGreaterThan(itineraryIndex);
+    expect(trailsIndex).toBeGreaterThan(-1);
+    expect(galleryIndex).toBeGreaterThan(trailsIndex);
   });
 });

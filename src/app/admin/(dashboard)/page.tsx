@@ -17,34 +17,72 @@ async function safeCount(
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
 
-  const [tours, publishedTours, pendingBookings, totalBookings, contacts] =
-    await Promise.all([
-      safeCount(() =>
-        supabase.from("tours").select("id", { count: "exact", head: true }),
-      ),
-      safeCount(() =>
-        supabase
-          .from("tours")
-          .select("id", { count: "exact", head: true })
-          .eq("is_published", true),
-      ),
-      safeCount(() =>
-        supabase
-          .from("booking_requests")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "pending"),
-      ),
-      safeCount(() =>
-        supabase
-          .from("booking_requests")
-          .select("id", { count: "exact", head: true }),
-      ),
-      safeCount(() =>
-        supabase
-          .from("contact_submissions")
-          .select("id", { count: "exact", head: true }),
-      ),
-    ]);
+  const [
+    tours,
+    publishedTours,
+    pendingBookings,
+    totalBookings,
+    contacts,
+    galleryPhotos,
+    visibleGalleryPhotos,
+    publishedPosts,
+    totalPosts,
+    reviews,
+    visibleReviews,
+  ] = await Promise.all([
+    safeCount(() =>
+      supabase.from("tours").select("id", { count: "exact", head: true }),
+    ),
+    safeCount(() =>
+      supabase
+        .from("tours")
+        .select("id", { count: "exact", head: true })
+        .eq("is_published", true),
+    ),
+    safeCount(() =>
+      supabase
+        .from("booking_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending"),
+    ),
+    safeCount(() =>
+      supabase
+        .from("booking_requests")
+        .select("id", { count: "exact", head: true }),
+    ),
+    safeCount(() =>
+      supabase
+        .from("contact_submissions")
+        .select("id", { count: "exact", head: true }),
+    ),
+    safeCount(() =>
+      supabase.from("gallery").select("id", { count: "exact", head: true }),
+    ),
+    safeCount(() =>
+      supabase
+        .from("gallery")
+        .select("id", { count: "exact", head: true })
+        .eq("is_visible", true),
+    ),
+    safeCount(() =>
+      supabase
+        .from("blogs")
+        .select("id", { count: "exact", head: true })
+        .eq("is_published", true),
+    ),
+    safeCount(() =>
+      supabase.from("blogs").select("id", { count: "exact", head: true }),
+    ),
+    safeCount(() =>
+      supabase.from("reviews").select("id", { count: "exact", head: true }),
+    ),
+    safeCount(() =>
+      supabase
+        .from("reviews")
+        .select("id", { count: "exact", head: true })
+        .eq("is_visible", true),
+    ),
+  ]);
 
   const cards = [
     {
@@ -71,9 +109,33 @@ export default async function AdminDashboardPage() {
       href: "/admin/contacts",
       color: "text-teal-600",
     },
-    { label: "Gallery Photos", value: null, icon: Images, href: "#", color: "text-blue-600", hint: "Phase 3" },
-    { label: "Published Posts", value: null, icon: BookOpen, href: "#", color: "text-purple-600", hint: "Phase 3" },
-    { label: "Reviews", value: null, icon: Star, href: "#", color: "text-sand", hint: "Phase 3" },
+    {
+      label: "Gallery Photos",
+      value: galleryPhotos,
+      hint:
+        visibleGalleryPhotos != null
+          ? `${visibleGalleryPhotos} visible`
+          : undefined,
+      icon: Images,
+      href: "/admin/gallery",
+      color: "text-blue-600",
+    },
+    {
+      label: "Published Posts",
+      value: publishedPosts,
+      hint: totalPosts != null ? `${totalPosts} total` : undefined,
+      icon: BookOpen,
+      href: "/admin/blog",
+      color: "text-purple-600",
+    },
+    {
+      label: "Reviews",
+      value: reviews,
+      hint: visibleReviews != null ? `${visibleReviews} visible` : undefined,
+      icon: Star,
+      href: "/admin/reviews",
+      color: "text-sand",
+    },
   ];
 
   return (
@@ -86,9 +148,9 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map(({ label, value, hint, icon: Icon, href, color }) => {
-          const body = (
-            <Card className={href === "#" ? "opacity-60" : "transition-shadow hover:shadow-md"}>
+        {cards.map(({ label, value, hint, icon: Icon, href, color }) => (
+          <Link key={label} href={href}>
+            <Card className="transition-shadow hover:shadow-md">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center justify-between text-sm font-medium text-earth">
                   {label}
@@ -96,21 +158,12 @@ export default async function AdminDashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className={`text-3xl font-bold ${color}`}>
-                  {value ?? "—"}
-                </p>
+                <p className={`text-3xl font-bold ${color}`}>{value ?? "—"}</p>
                 {hint && <p className="mt-1 text-xs text-earth/60">{hint}</p>}
               </CardContent>
             </Card>
-          );
-          return href === "#" ? (
-            <div key={label}>{body}</div>
-          ) : (
-            <Link key={label} href={href}>
-              {body}
-            </Link>
-          );
-        })}
+          </Link>
+        ))}
       </div>
     </div>
   );

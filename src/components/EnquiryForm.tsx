@@ -15,7 +15,12 @@ import TurnstileWidget, {
 } from "@/components/TurnstileWidget";
 import { PREFILL_MESSAGE_EVENT } from "@/components/HeroCta";
 import { HAS_TURNSTILE } from "@/lib/turnstile";
+import { resolveEdgeFunctionError } from "@/lib/edgeFunctionError";
+import { earliestTravelDate, isFutureTravelDate } from "@/lib/travelDate";
 type Status = "idle" | "loading" | "success" | "error";
+
+const GENERIC_ERROR =
+  "Sorry, we couldn't send your enquiry just now. Please try again in a moment, or email us directly.";
 
 export default function EnquiryForm({
   successMessage,
@@ -32,6 +37,7 @@ export default function EnquiryForm({
   const [errorMsg, setErrorMsg] = useState("");
   const [message, setMessage] = useState("");
   const [token, setToken] = useState<string | null>(null);
+  const [minTravelDate] = useState(earliestTravelDate);
   const turnstileRef = useRef<TurnstileHandle>(null);
 
   useEffect(() => {
@@ -44,22 +50,30 @@ export default function EnquiryForm({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+
     if (HAS_TURNSTILE && !token) {
       setStatus("error");
       setErrorMsg("Please complete the verification challenge.");
       return;
     }
 
+    const travelDate = String(fd.get("travel_date") ?? "");
+    if (travelDate && !isFutureTravelDate(travelDate)) {
+      setStatus("error");
+      setErrorMsg("Please choose a travel date in the future.");
+      return;
+    }
+
     setStatus("loading");
     setErrorMsg("");
 
-    const form = e.currentTarget;
-    const fd = new FormData(form);
     const fullName = String(fd.get("name") ?? "").trim();
     const [first_name, ...rest] = fullName.split(/\s+/);
 
     const supabase = createClient();
-    const { data, error } = await supabase.functions.invoke("submit-booking", {
+    const result = await supabase.functions.invoke("submit-booking", {
       body: {
         turnstileToken: token ?? "",
         tour_id: tourId ?? null,
@@ -68,7 +82,7 @@ export default function EnquiryForm({
         first_name: first_name || fullName,
         last_name: rest.join(" "),
         email: String(fd.get("email") ?? "").trim(),
-        travel_date: String(fd.get("travel_date") ?? "") || null,
+        travel_date: travelDate || null,
         travellers: fd.get("travellers")
           ? Number(fd.get("travellers"))
           : null,
@@ -79,12 +93,10 @@ export default function EnquiryForm({
     turnstileRef.current?.reset();
     setToken(null);
 
-    const fnError = (data as { error?: string } | null)?.error;
-    if (error || fnError) {
+    const friendlyError = await resolveEdgeFunctionError(result, GENERIC_ERROR);
+    if (friendlyError) {
       setStatus("error");
-      setErrorMsg(
-        fnError || error?.message || "Something went wrong. Please try again.",
-      );
+      setErrorMsg(friendlyError);
       return;
     }
 
@@ -142,6 +154,7 @@ export default function EnquiryForm({
           data-testid="enquiry-travel-date"
           type="date"
           name="travel_date"
+          min={minTravelDate}
           disabled={busy}
           className={inputClasses}
         />

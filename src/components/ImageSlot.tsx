@@ -12,6 +12,7 @@ type ImageSlotProps = {
   placeholder?: string;
   initials?: string;
   shape?: "rect" | "circle";
+  fit?: "cover" | "contain";
   className?: string;
   imgClassName?: string;
   priority?: boolean;
@@ -25,6 +26,7 @@ export default function ImageSlot({
   placeholder,
   initials,
   shape = "rect",
+  fit = "cover",
   className = "",
   imgClassName = "",
   priority = false,
@@ -45,7 +47,7 @@ export default function ImageSlot({
           priority={priority}
           sizes={sizes}
           quality={quality}
-          className={`object-cover ${imgClassName}`}
+          className={`${fit === "contain" ? "object-contain" : "object-cover"} ${imgClassName}`}
         />
       </div>
     );

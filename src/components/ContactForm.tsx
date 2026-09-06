@@ -6,7 +6,11 @@ import TurnstileWidget, {
   type TurnstileHandle,
 } from "@/components/TurnstileWidget";
 import { HAS_TURNSTILE } from "@/lib/turnstile";
+import { resolveEdgeFunctionError } from "@/lib/edgeFunctionError";
 type Status = "idle" | "loading" | "success" | "error";
+
+const GENERIC_ERROR =
+  "Sorry, we couldn't send your message just now. Please try again in a moment, or email us directly.";
 
 export default function ContactForm({
   successMessage,
@@ -31,7 +35,7 @@ export default function ContactForm({
     const form = e.currentTarget;
     const fd = new FormData(form);
     const supabase = createClient();
-    const { data, error } = await supabase.functions.invoke("submit-contact", {
+    const result = await supabase.functions.invoke("submit-contact", {
       body: {
         turnstileToken: token ?? "",
         name: String(fd.get("name") ?? "").trim(),
@@ -45,10 +49,10 @@ export default function ContactForm({
     turnstileRef.current?.reset();
     setToken(null);
 
-    const fnError = (data as { error?: string } | null)?.error;
-    if (error || fnError) {
+    const friendlyError = await resolveEdgeFunctionError(result, GENERIC_ERROR);
+    if (friendlyError) {
       setStatus("error");
-      setErrorMsg(fnError || error?.message || "Something went wrong.");
+      setErrorMsg(friendlyError);
       return;
     }
     setStatus("success");

@@ -21,3 +21,10 @@ export const TURNSTILE_SITE_KEY = isPlaceholder ? undefined : raw;
 
 /** Whether a real Turnstile site key is configured. */
 export const HAS_TURNSTILE = Boolean(TURNSTILE_SITE_KEY);
+
+/**
+ * The Cloudflare-assigned action the widget renders with. The edge functions
+ * re-check this server-side against the `siteverify` response
+ * (`supabase/functions/_shared/turnstile.ts`), so the two must stay in sync.
+ */
+export const TURNSTILE_ACTION = "travel-trails-form";

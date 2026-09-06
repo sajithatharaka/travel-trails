@@ -58,6 +58,19 @@ export async function getFeaturedTour(): Promise<TourWithChildren | null> {
   return tours.find((t) => t.is_featured) ?? tours[0] ?? null;
 }
 
+/**
+ * Up to `limit` published tours for the homepage grid: any `is_featured`
+ * tours first, then the rest in `display_order`, capped at `limit`.
+ */
+export async function listFeaturedTrails(
+  limit = 4,
+): Promise<TourWithChildren[]> {
+  const tours = await loadPublishedTours();
+  const featured = tours.filter((t) => t.is_featured);
+  const rest = tours.filter((t) => !t.is_featured);
+  return [...featured, ...rest].slice(0, limit);
+}
+
 export async function getTourBySlug(
   slug: string,
 ): Promise<TourWithChildren | null> {

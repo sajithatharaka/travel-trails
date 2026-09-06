@@ -9,8 +9,15 @@ around bookable tour packages. Roles: **admin** and **tour_designer**
 |---|---|
 | [phase-0-1-foundation-and-tours.md](./requirements/phase-0-1-foundation-and-tours.md) | TypeScript + App Router + Supabase auth shell; tour packages CMS + public tour pages |
 | [phase-2-bookings-contacts.md](./requirements/phase-2-bookings-contacts.md) | Booking-request & contact forms, Turnstile, edge functions, Resend notifications, admin queues |
+| [turnstile-existing-widget-integration.md](./requirements/turnstile-existing-widget-integration.md) | Wiring the pre-created Turnstile widget + server-side `success`/`action`/`hostname` enforcement (Cloudflare existing-widget flow) |
+| [booking-travel-date-future.md](./requirements/booking-travel-date-future.md) | Enquiry form + `submit-booking` reject any `travel_date` that is not strictly after today |
 | [phase-3-content-cms.md](./requirements/phase-3-content-cms.md) | Blog, FAQ, gallery, reviews, welcome-section CMS + public wiring |
 | [phase-4-settings.md](./requirements/phase-4-settings.md) | Editable site settings, notification recipients, user management, technical notes, user guide |
+| [admin-dashboard.md](./requirements/admin-dashboard.md) | Admin dashboard overview cards, each backed by a live DB count and linked to its section |
+| [homepage-hero.md](./requirements/homepage-hero.md) | Full-bleed homepage hero: content sources, single background image, CTAs |
+| [home-route-map.md](./requirements/home-route-map.md) | Homepage Route section: uncropped island diagram (`fit="contain"`, artwork aspect ratio) + stop list |
+| [home-featured-trails.md](./requirements/home-featured-trails.md) | Homepage 4-tile featured-trails grid + "View all tours" link; shared `TourCard`; replaces the day-by-day itinerary + stats bar |
+| [home-testimonials-marquee.md](./requirements/home-testimonials-marquee.md) | Homepage "What Our Guests Say": paused-on-hover marquee of all testimonials, fixed-size cards with clipped quote + "See more" dialog |
 | [testing.md](./requirements/testing.md) | Vitest (unit / integration / component) + Playwright (e2e) setup and coverage |
 | [sample-seed-data.md](./requirements/sample-seed-data.md) | Idempotent sample rows for every table, for testing against a live database |
 | [seo-structured-data.md](./requirements/seo-structured-data.md) | JSON-LD entity graph on every public page + `/llms.txt` for SEO / AEO / GEO |

@@ -42,7 +42,9 @@ lengths, FAQ mapping, tour `offers`/`itinerary` omission, blog `wordCount` +
 graceful fallback against a mocked supabase builder); `edge-functions` (source
 assertions: Turnstile-before-insert ordering, service-role writes, `invokeNotify`
 wiring, `verify_jwt` flags in `config.toml`, dedupe + active-recipient filter,
-RLS lockdown has no public insert, `manage-users` admin-gating);
+RLS lockdown has no public insert, `manage-users` admin-gating, and
+`verifyTurnstile`'s `success`/`action`/`hostname`-allowlist + malformed-token +
+`TURNSTILE_ALLOW_LOCALHOST` + `siteverify`-timeout guards);
 `sample-seed` (source assertions on `supabase/seeds/sample-data.sql` — every
 table from the migrations is seeded, every insert is idempotent, teardown
 mirrors it, only tagged `5eed…` / `@example.test` rows are touched). See

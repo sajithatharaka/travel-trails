@@ -57,10 +57,14 @@ price, cover + route-map + per-day `ImageUpload` (Supabase Storage). Mutations
 call the `revalidateToursCache` server action (`revalidateTag(TOURS_TAG, "max")`).
 
 **Public** — `/tours` index and `/tours/[slug]` detail (Server Components,
-`generateMetadata`, an inline `EnquiryForm`). The homepage hero / route /
-day-by-day itinerary now come from the featured tour; `src/config.ts` `hero` is
-only a fallback when nothing is featured. Dynamic `sitemap.ts` includes
-published tours.
+`generateMetadata`, an inline `EnquiryForm`). The homepage hero and Route
+section come from the featured tour (`src/config.ts` `hero` is only a fallback
+when nothing is featured); the homepage no longer expands one tour into a
+day-by-day itinerary — instead it shows a 4-tile "featured trails" grid +
+"View all tours" link, see
+[home-featured-trails.md](./home-featured-trails.md). The full day-by-day
+itinerary lives on `/tours/[slug]`. Dynamic `sitemap.ts` includes published
+tours.
 
 The `TouristTrip` / `CollectionPage` / `BreadcrumbList` JSON-LD for these routes
 is built by `src/lib/seo/structuredData.ts` and rendered via `<JsonLd>` — see

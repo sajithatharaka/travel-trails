@@ -7,7 +7,11 @@
 
 import Link from "next/link";
 import { siteConfig } from "@/config";
-import { getFeaturedTour, formatPriceFrom } from "@/lib/tours";
+import {
+  getFeaturedTour,
+  listFeaturedTrails,
+  formatPriceFrom,
+} from "@/lib/tours";
 import {
   listReviews,
   listSiteFaqs,
@@ -16,19 +20,21 @@ import {
 } from "@/lib/content";
 import { getSiteSettings } from "@/lib/settings";
 import { resolveImage } from "@/lib/resolveImage";
-import { getInitials } from "@/lib/getInitials";
 import { faqSchema, webPageSchema } from "@/lib/seo/structuredData";
 import JsonLd from "@/components/JsonLd";
 import ImageSlot from "@/components/ImageSlot";
+import TourCard from "@/components/TourCard";
 import HeroSlider from "@/components/HeroSlider";
 import HeroCta from "@/components/HeroCta";
 import EnquiryForm from "@/components/EnquiryForm";
 import FaqAccordion from "@/components/FaqAccordion";
 import GalleryTicker from "@/components/GalleryTicker";
+import TestimonialsMarquee from "@/components/TestimonialsMarquee";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const { hero, about, why, testimonials, faq, enquiry } = siteConfig;
+const { hero, featuredTrails, about, why, testimonials, faq, enquiry } =
+  siteConfig;
 
 const iconShapeClass: Record<string, string> = {
   circle: "h-5 w-5 rounded-full bg-deep-jungle",
@@ -39,14 +45,16 @@ const iconShapeClass: Record<string, string> = {
 };
 
 export default async function HomePage() {
-  const [tour, reviews, dbFaqs, welcome, gallery, settings] = await Promise.all([
-    getFeaturedTour(),
-    listReviews(),
-    listSiteFaqs(),
-    getActiveWelcomeSection(),
-    listGallery(),
-    getSiteSettings(),
-  ]);
+  const [tour, trails, reviews, dbFaqs, welcome, gallery, settings] =
+    await Promise.all([
+      getFeaturedTour(),
+      listFeaturedTrails(),
+      listReviews(),
+      listSiteFaqs(),
+      getActiveWelcomeSection(),
+      listGallery(),
+      getSiteSettings(),
+    ]);
 
   const contactDetails = [
     settings.contact_email,
@@ -78,13 +86,13 @@ export default async function HomePage() {
           quote: r.review_text,
           name: r.reviewer_name,
           trip: r.location ?? r.source,
-          avatarId: "",
+          avatar: null as string | null,
         }))
       : testimonials.items.map((t) => ({
           quote: t.quote,
           name: t.name,
           trip: t.trip,
-          avatarId: t.avatarId,
+          avatar: t.avatarId ? resolveImage(t.avatarId) : null,
         }));
 
   // About block — active welcome_section, falling back to config.about.
@@ -113,25 +121,6 @@ export default async function HomePage() {
   const primaryCta = tour
     ? { label: "See This Itinerary", href: `/tours/${tour.slug}` }
     : hero.primaryCta;
-
-  const stats: { value: string; label: string }[] = [];
-  if (tour) {
-    if (tour.duration_days)
-      stats.push({ value: String(tour.duration_days), label: "Days on Trail" });
-    if (tour.destination_count)
-      stats.push({
-        value: String(tour.destination_count),
-        label: "Destinations",
-      });
-    if (tour.route_stops.length)
-      stats.push({
-        value: String(tour.route_stops.length),
-        label: "Route Stops",
-      });
-    const expCount = tour.days.reduce((n, d) => n + d.experiences.length, 0);
-    if (expCount)
-      stats.push({ value: `${expCount}+`, label: "Experiences" });
-  }
 
   const priceFrom = formatPriceFrom(tour?.price_from_usd);
 
@@ -183,24 +172,6 @@ export default async function HomePage() {
         </div>
       </HeroSlider>
 
-      {/* ─── STATS BAR ────────────────────────────────────── */}
-      {stats.length > 0 && (
-        <div className="bg-deep-jungle py-9">
-          <div className="mx-auto grid max-w-[1180px] grid-cols-2 gap-6 px-8 text-center md:grid-cols-4">
-            {stats.map((stat) => (
-              <div key={stat.label}>
-                <div className="font-serif text-[34px] font-bold text-surface">
-                  {stat.value}
-                </div>
-                <div className="mt-1 text-sm" style={{ color: "oklch(85% 0.03 160)" }}>
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* ─── ABOUT / WELCOME ──────────────────────────────── */}
       <section id="about" className="bg-surface px-5 py-16 sm:px-8 sm:py-24">
         <div className="mx-auto grid max-w-[1180px] gap-14 md:grid-cols-2 md:items-center">
@@ -242,11 +213,12 @@ export default async function HomePage() {
               </h2>
             </div>
             <div className="grid gap-14 md:grid-cols-[1.1fr_0.9fr] md:items-center">
-              <div className="aspect-[1100/1400] h-[420px] w-auto justify-self-center overflow-hidden rounded-3xl border border-line md:h-[520px]">
+              <div className="aspect-[941/1672] h-[420px] w-auto justify-self-center overflow-hidden rounded-3xl border border-line md:h-[520px]">
                 <ImageSlot
                   src={tour.route_map_image_url || resolveImage("route-map")}
                   alt={`${tour.title} route map`}
                   placeholder="Route map"
+                  fit="contain"
                 />
               </div>
               <div className="flex flex-col gap-3.5">
@@ -275,97 +247,38 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ─── ITINERARY ────────────────────────────────────── */}
-      {tour && tour.days.length > 0 && (
+      {/* ─── FEATURED TRAILS ──────────────────────────────── */}
+      {trails.length > 0 && (
         <section
-          id="itinerary"
+          id="featured-trails"
           className="bg-section-tint px-5 py-16 sm:px-8 sm:py-24"
         >
           <div className="mx-auto max-w-[1180px]">
             <div className="mx-auto mb-14 max-w-[640px] text-center">
               <p className="text-[13px] font-semibold uppercase tracking-[.14em] text-terracotta">
-                Day by Day
+                {featuredTrails.sectionLabel}
               </p>
               <h2 className="mt-2.5 font-serif text-[clamp(30px,3.6vw,44px)] leading-tight text-ink">
-                {tour.title}
+                {featuredTrails.headline}
               </h2>
-              {tour.summary && (
-                <p className="mt-3.5 text-lg leading-relaxed text-ink-soft">
-                  {tour.summary}
-                </p>
-              )}
+              <p className="mt-3.5 text-lg leading-relaxed text-ink-soft">
+                {featuredTrails.subheadline}
+              </p>
             </div>
 
-            {tour.days.map((day, i) => {
-              const imageFirst = i % 2 === 0;
-              return (
-                <div
-                  key={day.id}
-                  id={day.anchor ?? undefined}
-                  className="grid scroll-mt-24 grid-cols-1 items-center gap-14 border-b border-line py-14 last:border-b-0 md:grid-cols-2"
-                >
-                  <div
-                    className={`aspect-[4/3] overflow-hidden rounded-[20px] ${
-                      imageFirst ? "md:order-1" : "md:order-2"
-                    }`}
-                  >
-                    <ImageSlot
-                      src={day.image_url}
-                      alt={day.title}
-                      placeholder={day.title}
-                    />
-                  </div>
-                  <div className={imageFirst ? "md:order-2" : "md:order-1"}>
-                    <span className="mb-4 inline-block rounded-full bg-jungle px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-[.1em] text-surface">
-                      {day.day_label}
-                    </span>
-                    <h3 className="mb-3.5 font-serif text-[28px] text-ink">
-                      {day.title}
-                    </h3>
-                    {day.description && (
-                      <p className="mb-4 text-base leading-relaxed text-ink-soft">
-                        {day.description}
-                      </p>
-                    )}
-                    {day.experiences.length > 0 && (
-                      <>
-                        <div
-                          className="mb-2.5 text-[13px] font-bold uppercase tracking-[.08em]"
-                          style={{
-                            color: "color-mix(in oklch, #c9682f 80%, black)",
-                          }}
-                        >
-                          {day.experiences_label || "Experiences you can enjoy"}
-                        </div>
-                        <ul className="flex flex-col gap-2.5">
-                          {day.experiences.map((exp) => (
-                            <li
-                              key={exp}
-                              className="flex gap-2.5 text-[15.5px] leading-snug text-ink"
-                            >
-                              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-jungle" />
-                              {exp}
-                            </li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
-                    {day.note && (
-                      <div className="mt-[18px] border-l-2 border-terracotta pl-3 text-[14.5px] italic text-ink-soft">
-                        {day.note}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+              {trails.map((trail) => (
+                <TourCard key={trail.id} tour={trail} />
+              ))}
+            </div>
 
             <div className="pt-12 text-center">
               <Link
-                href={`/tours/${tour.slug}`}
+                href="/tours"
+                data-testid="view-all-tours"
                 className="inline-flex items-center rounded-full bg-deep-jungle px-7 py-[14px] text-[15px] font-semibold text-surface transition-opacity hover:opacity-90"
               >
-                Full tour details
+                {featuredTrails.viewAllLabel}
               </Link>
             </div>
           </div>
@@ -417,64 +330,27 @@ export default async function HomePage() {
       </section>
 
       {/* ─── TESTIMONIALS ─────────────────────────────────── */}
-      <section className="bg-deep-jungle px-5 py-16 sm:px-8 sm:py-24">
-        <div className="mx-auto max-w-[1180px]">
-          <div className="mx-auto mb-14 max-w-[640px] text-center">
+      <section className="overflow-hidden bg-deep-jungle py-16 sm:py-24">
+        <div className="mx-auto mb-14 max-w-[640px] px-5 text-center sm:px-8">
+          <p
+            className="text-[13px] font-semibold uppercase tracking-[.14em]"
+            style={{ color: "color-mix(in oklch, #c9682f 65%, white)" }}
+          >
+            {testimonials.sectionLabel}
+          </p>
+          <h2 className="mt-2.5 font-serif text-[clamp(30px,3.6vw,44px)] leading-tight text-surface">
+            {testimonials.headline}
+          </h2>
+          {testimonials.subheadline && (
             <p
-              className="text-[13px] font-semibold uppercase tracking-[.14em]"
-              style={{ color: "color-mix(in oklch, #c9682f 65%, white)" }}
+              className="mt-3.5 text-lg leading-relaxed"
+              style={{ color: "oklch(85% 0.02 90)" }}
             >
-              {testimonials.sectionLabel}
+              {testimonials.subheadline}
             </p>
-            <h2 className="mt-2.5 font-serif text-[clamp(30px,3.6vw,44px)] leading-tight text-surface">
-              {testimonials.headline}
-            </h2>
-            {testimonials.subheadline && (
-              <p
-                className="mt-3.5 text-lg leading-relaxed"
-                style={{ color: "oklch(85% 0.02 90)" }}
-              >
-                {testimonials.subheadline}
-              </p>
-            )}
-          </div>
-          <div className="grid gap-7 md:grid-cols-3">
-            {reviewCards.slice(0, 6).map((t) => (
-              <div
-                key={t.name + t.quote.slice(0, 12)}
-                className="rounded-2xl bg-card-jungle p-8 text-surface"
-              >
-                <div className="mb-3.5 tracking-[2px] text-terracotta">★★★★★</div>
-                <p
-                  className="mb-6 text-[15.5px] leading-relaxed"
-                  style={{ color: "oklch(94% 0.01 90)" }}
-                >
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full">
-                    <ImageSlot
-                      src={t.avatarId ? resolveImage(t.avatarId) : null}
-                      alt={t.name}
-                      placeholder="Guest photo"
-                      initials={getInitials(t.name)}
-                      shape="circle"
-                    />
-                  </div>
-                  <div>
-                    <div className="text-[14.5px] font-semibold">{t.name}</div>
-                    <div
-                      className="text-[13px]"
-                      style={{ color: "oklch(80% 0.03 160)" }}
-                    >
-                      {t.trip}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          )}
         </div>
+        <TestimonialsMarquee items={reviewCards} />
       </section>
 
       {/* ─── FAQ ──────────────────────────────────────────── */}

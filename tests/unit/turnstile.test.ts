@@ -40,4 +40,9 @@ describe("lib/turnstile", () => {
     expect(TURNSTILE_SITE_KEY).toBe("1x00000000000000000000AA");
     expect(HAS_TURNSTILE).toBe(true);
   });
+
+  it("exposes the shared form action the edge functions re-check", async () => {
+    const { TURNSTILE_ACTION } = await load("1x00000000000000000000AA");
+    expect(TURNSTILE_ACTION).toBe("travel-trails-form");
+  });
 });
