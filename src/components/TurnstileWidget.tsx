@@ -29,11 +29,22 @@ export interface TurnstileHandle {
  * Cloudflare Turnstile. The `api.js` script is loaded once in the (site)
  * layout. When no site key is configured the widget renders nothing (the
  * edge function still fail-closes on the missing token server-side).
+ *
+ * `onError` fires for `error-callback` — most commonly a site key whose
+ * Cloudflare-side allowed-domain list doesn't include the hostname the page
+ * is running on (shows as a "Unable to connect to website" box in the
+ * widget itself). Without wiring this up, that failure leaves the form
+ * silently stuck: no token ever arrives, so the submit button stays
+ * disabled with no explanation.
  */
 const TurnstileWidget = forwardRef<
   TurnstileHandle,
-  { onVerify: (token: string) => void; onExpire?: () => void }
->(({ onVerify, onExpire }, ref) => {
+  {
+    onVerify: (token: string) => void;
+    onExpire?: () => void;
+    onError?: () => void;
+  }
+>(({ onVerify, onExpire, onError }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string>(undefined);
 
@@ -50,6 +61,7 @@ const TurnstileWidget = forwardRef<
             action: TURNSTILE_ACTION,
             callback: onVerify,
             "expired-callback": onExpire,
+            "error-callback": onError,
           });
         } catch (err) {
           // A rejected site key (e.g. a misconfigured env) must never take

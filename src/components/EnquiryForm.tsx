@@ -21,6 +21,8 @@ type Status = "idle" | "loading" | "success" | "error";
 
 const GENERIC_ERROR =
   "Sorry, we couldn't send your enquiry just now. Please try again in a moment, or email us directly.";
+const VERIFICATION_UNAVAILABLE_ERROR =
+  "Sorry, the verification widget couldn't load. Please refresh the page and try again, or email us directly.";
 
 export default function EnquiryForm({
   successMessage,
@@ -196,7 +198,16 @@ export default function EnquiryForm({
 
       {HAS_TURNSTILE && (
         <div className="sm:col-span-2">
-          <TurnstileWidget ref={turnstileRef} onVerify={setToken} onExpire={() => setToken(null)} />
+          <TurnstileWidget
+            ref={turnstileRef}
+            onVerify={setToken}
+            onExpire={() => setToken(null)}
+            onError={() => {
+              setToken(null);
+              setStatus("error");
+              setErrorMsg(VERIFICATION_UNAVAILABLE_ERROR);
+            }}
+          />
         </div>
       )}
 
