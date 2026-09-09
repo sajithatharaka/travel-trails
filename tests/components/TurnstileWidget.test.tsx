@@ -51,6 +51,20 @@ describe("<TurnstileWidget />", () => {
     );
   });
 
+  it("wires error-callback to the onError prop", async () => {
+    const renderSpy = vi.fn(() => "wid-1");
+    window.turnstile = { render: renderSpy, reset: vi.fn(), remove: vi.fn() };
+
+    const Widget = await loadWidget("1x00000000000000000000AA");
+    const onError = vi.fn();
+    render(<Widget onVerify={vi.fn()} onError={onError} />);
+
+    expect(renderSpy).toHaveBeenCalledWith(
+      expect.any(HTMLElement),
+      expect.objectContaining({ "error-callback": onError }),
+    );
+  });
+
   it("renders nothing (and never touches turnstile) for a placeholder key", async () => {
     const renderSpy = vi.fn();
     window.turnstile = { render: renderSpy, reset: vi.fn(), remove: vi.fn() };

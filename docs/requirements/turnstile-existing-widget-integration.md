@@ -91,6 +91,46 @@ setting the secrets, reproduce once and read the `[turnstile]` log line:
   (Deno edge functions can't execute under Vitest, so these stay source-string
   assertions — the established pattern for this file.)
 
+## Change history
+
+### 2026-09-09 — "Unable to connect to website" box, Send Enquiry stuck disabled
+
+**Symptom:** on the deployed Netlify site
+(`https://travel-trails-webapp.netlify.app`), the enquiry/contact forms show a
+Cloudflare-branded "Unable to connect to website / Troubleshoot" box in place
+of the Turnstile widget, and "Send Enquiry" / "Send Message" stay disabled
+forever — the widget never issues a token.
+
+**Root cause:** the widget's site key (`0x4AAAAAAEqgjFCv-h6geTYP`) is a
+Cloudflare-side allowed-domain list scoped to `traveltrails.agency` /
+`www.traveltrails.agency` (see `TURNSTILE_ALLOWED_HOSTNAMES` below). The
+`*.netlify.app` preview/staging domain isn't on that list, so Cloudflare
+refuses to serve the challenge for that hostname and the widget's iframe
+renders its own "Unable to connect to website" error instead of a checkbox.
+This is a Cloudflare Turnstile dashboard + Supabase secret configuration gap,
+not a code defect — the same domain mismatch would also make the server-side
+`verifyTurnstile` hostname check reject a token even if one were somehow
+issued.
+
+**Operational fix (required, outside this repo):**
+1. Cloudflare dashboard → Turnstile → the `0x4AAAAAAEqgjFCv-h6geTYP` widget →
+   add `travel-trails-webapp.netlify.app` (and any other domain the site is
+   actually reachable on) to the widget's allowed domains.
+2. `supabase secrets set TURNSTILE_ALLOWED_HOSTNAMES=www.traveltrails.agency,traveltrails.agency,travel-trails-webapp.netlify.app`
+   (redeploy not required — edge functions read secrets at invocation time).
+3. Once the custom domain (`www.traveltrails.agency`) is live and is the only
+   domain visitors use, drop the `netlify.app` entry from both places again.
+
+**Code fix (this change):** `TurnstileWidget` didn't wire up Turnstile's
+`error-callback`, so a domain/config failure like this left the form
+silently stuck — no token, no message, just a permanently disabled button
+behind Cloudflare's own error box. `TurnstileWidget` now accepts an `onError`
+prop passed as `error-callback`; `EnquiryForm` and `ContactForm` use it to
+show "Sorry, the verification widget couldn't load. Please refresh the page
+and try again, or email us directly." instead of failing silently. This
+makes future misconfigurations visible to visitors — it does not by itself
+fix the domain allowlist gap above.
+
 ## Acceptance criteria
 
 - [x] Widget renders with the real site key and action `travel-trails-form`.
@@ -98,6 +138,13 @@ setting the secrets, reproduce once and read the `[turnstile]` log line:
       `hostname` all pass, plus a well-formed token and a configured allowlist.
 - [x] `verifyTurnstile` stays fail-closed when either secret is unset.
 - [x] `npm run typecheck`, `npm test` pass.
+- [x] `TurnstileWidget` surfaces `error-callback` via an `onError` prop;
+      `EnquiryForm` and `ContactForm` show a friendly message instead of a
+      silently-stuck disabled button when the widget fails to load.
 - [ ] `TURNSTILE_SECRET_KEY` and `TURNSTILE_ALLOWED_HOSTNAMES` set on Supabase;
       one real end-to-end submission verified and a token replay rejected
       (launch task).
+- [ ] `travel-trails-webapp.netlify.app` added to the Turnstile widget's
+      Cloudflare-side allowed domains (or the custom domain is live and this
+      preview domain is no longer used by visitors) — see the 2026-09-09
+      change history entry above.

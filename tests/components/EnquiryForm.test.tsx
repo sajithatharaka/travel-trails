@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { earliestTravelDate } from "@/lib/travelDate";
@@ -153,5 +153,37 @@ describe("<EnquiryForm />", () => {
       await screen.findByText(/couldn't send your enquiry just now/i),
     ).toBeInTheDocument();
     expect(screen.queryByText("Failed to fetch")).not.toBeInTheDocument();
+  });
+
+  describe("when Turnstile fails to load (e.g. an unrecognized domain)", () => {
+    afterEach(() => {
+      vi.unstubAllEnvs();
+      vi.resetModules();
+      delete window.turnstile;
+    });
+
+    it("shows a friendly message instead of leaving the form silently stuck", async () => {
+      vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", "1x00000000000000000000AA");
+      window.turnstile = {
+        render: (_el, opts) => {
+          (opts["error-callback"] as () => void)?.();
+          return "wid-1";
+        },
+        reset: vi.fn(),
+        remove: vi.fn(),
+      };
+      vi.resetModules();
+      const FreshEnquiryForm = (await import("@/components/EnquiryForm"))
+        .default;
+
+      render(<FreshEnquiryForm successMessage="done" />);
+
+      expect(
+        await screen.findByText(/verification widget couldn't load/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /send enquiry/i }),
+      ).toBeDisabled();
+    });
   });
 });
