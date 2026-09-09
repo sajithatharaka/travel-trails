@@ -22,7 +22,6 @@ The hero is driven by the **featured tour** — the published `tours` row with
 | Background    | `tour.cover_image_url` → `resolveImage(siteConfig.hero.fallbackImageId)` |
 | Primary CTA  | featured tour: "See This Itinerary" → `/tours/<slug>`; otherwise `siteConfig.hero.primaryCta` |
 | Secondary CTA | "Customize My Trip" → `#enquiry`, prefills the enquiry message      |
-| Price chip   | `formatPriceFrom(tour.price_from_usd)` — shown only when set          |
 
 The hero shows a **single** background image. It is not a rotating carousel in
 the current design; `HeroSlider` still supports multiple slides (with dot nav)
@@ -39,6 +38,10 @@ asset is a diagram, not a photograph, and renders as broken at full-bleed size.
 
 ## Change history
 
+- **2026-09-06** — Removed the "from $980 / person" price chip from the hero
+  CTA row. The `formatPriceFrom(tour.price_from_usd)` span and its now-unused
+  import were deleted from `page.tsx`. Price still shows on tour cards and tour
+  detail pages. Tests: `tests/app/home-hero.test.ts`.
 - **2026-09-05** — Fixed hero background fallback. Previously
   `page.tsx` chained `tour.cover_image_url || resolveImage("hero-1") ||
   resolveImage("route-map")`; `hero-1` has no file on disk, so a featured tour
