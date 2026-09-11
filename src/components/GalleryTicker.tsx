@@ -23,6 +23,11 @@ export default function GalleryTicker({
   items: GalleryTickerItem[];
 }) {
   const [active, setActive] = useState<GalleryTickerItem | null>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [active]);
 
   useEffect(() => {
     if (!active) return;
@@ -77,27 +82,50 @@ export default function GalleryTicker({
             aria-label={active.alt}
             onClick={(e) => e.stopPropagation()}
             data-testid="gallery-dialog"
-            className="relative max-h-[85vh] w-full max-w-4xl"
+            className="relative inline-block max-w-full"
           >
-            <button
-              type="button"
-              onClick={() => setActive(null)}
-              aria-label="Close image"
-              data-testid="gallery-dialog-close"
-              className="absolute -right-2 -top-2 flex h-9 w-9 items-center justify-center rounded-full bg-white text-lg leading-none text-ink shadow-lg transition-colors hover:bg-white/90"
-            >
-              ×
-            </button>
-            <div className="relative h-[70vh] w-full overflow-hidden rounded-2xl">
-              <Image
-                src={active.src}
-                alt={active.alt}
-                fill
-                sizes="100vw"
-                className="object-contain"
-                data-testid="gallery-dialog-image"
-              />
-            </div>
+            {/* Sized to the photo's own rendered box (not a fixed-size
+                frame) so the button below tracks its actual corner instead
+                of floating over empty letterbox space for narrower images.
+                `priority` skips native lazy-loading — with `opacity-0`
+                instead of `hidden` the element still has real layout size
+                (browsers reserve it from the width/height attributes) so
+                the image is free to load while invisible; `display: none`
+                would give it no box to become visible in and the image
+                would never finish loading. */}
+            <Image
+              src={active.src}
+              alt={active.alt}
+              width={1600}
+              height={1200}
+              sizes="90vw"
+              priority
+              onLoad={() => setLoaded(true)}
+              className={`block h-auto max-h-[85vh] min-h-40 min-w-40 w-auto max-w-[90vw] rounded-2xl object-contain transition-opacity ${loaded ? "opacity-100" : "opacity-0"}`}
+              data-testid="gallery-dialog-image"
+            />
+            {!loaded && (
+              <div
+                className="absolute inset-0 flex items-center justify-center"
+                data-testid="gallery-dialog-spinner"
+              >
+                <div
+                  aria-label="Loading image"
+                  className="h-10 w-10 animate-spin rounded-full border-4 border-white/30 border-t-white"
+                />
+              </div>
+            )}
+            {loaded && (
+              <button
+                type="button"
+                onClick={() => setActive(null)}
+                aria-label="Close image"
+                data-testid="gallery-dialog-close"
+                className="absolute -right-3 -top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white text-lg leading-none text-ink shadow-lg transition-colors hover:bg-white/90"
+              >
+                ×
+              </button>
+            )}
           </div>
         </div>
       )}

@@ -50,10 +50,49 @@ describe("<GalleryTicker />", () => {
     );
   });
 
-  it("closes the lightbox via the close button", () => {
+  it("shows a spinner and hides the image/close button until the image loads", async () => {
     render(<GalleryTicker items={makeItems(3)} />);
     fireEvent.click(screen.getAllByTestId("gallery-image-button")[0]);
-    fireEvent.click(screen.getByTestId("gallery-dialog-close"));
+
+    expect(screen.getByTestId("gallery-dialog-spinner")).toBeInTheDocument();
+    expect(screen.getByTestId("gallery-dialog-image")).toHaveClass(
+      "opacity-0",
+    );
+    expect(
+      screen.queryByTestId("gallery-dialog-close"),
+    ).not.toBeInTheDocument();
+
+    fireEvent.load(screen.getByTestId("gallery-dialog-image"));
+
+    expect(await screen.findByTestId("gallery-dialog-close")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("gallery-dialog-spinner"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("gallery-dialog-image")).toHaveClass(
+      "opacity-100",
+    );
+  });
+
+  it("resets the loading state when switching to a different image", async () => {
+    render(<GalleryTicker items={makeItems(3)} />);
+    const tiles = screen.getAllByTestId("gallery-image-button");
+
+    fireEvent.click(tiles[0]);
+    fireEvent.load(screen.getByTestId("gallery-dialog-image"));
+    expect(await screen.findByTestId("gallery-dialog-close")).toBeInTheDocument();
+
+    fireEvent.click(tiles[1]);
+    expect(screen.getByTestId("gallery-dialog-spinner")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("gallery-dialog-close"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("closes the lightbox via the close button", async () => {
+    render(<GalleryTicker items={makeItems(3)} />);
+    fireEvent.click(screen.getAllByTestId("gallery-image-button")[0]);
+    fireEvent.load(screen.getByTestId("gallery-dialog-image"));
+    fireEvent.click(await screen.findByTestId("gallery-dialog-close"));
     expect(screen.queryByTestId("gallery-dialog")).not.toBeInTheDocument();
   });
 
@@ -76,5 +115,34 @@ describe("<GalleryTicker />", () => {
     fireEvent.click(screen.getAllByTestId("gallery-image-button")[0]);
     fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.queryByTestId("gallery-dialog")).not.toBeInTheDocument();
+  });
+
+  it("closes reliably via the close button across several images in a row", async () => {
+    // Regression test: the close button used to sit at a fixed-size frame's
+    // corner rather than the photo's own corner, which could leave the
+    // frame's stacking context swallowing clicks meant for the button.
+    render(<GalleryTicker items={makeItems(5)} />);
+    const tiles = screen.getAllByTestId("gallery-image-button");
+
+    for (let i = 0; i < 5; i++) {
+      fireEvent.click(tiles[i]);
+      expect(screen.getByTestId("gallery-dialog")).toBeInTheDocument();
+      fireEvent.load(screen.getByTestId("gallery-dialog-image"));
+      fireEvent.click(await screen.findByTestId("gallery-dialog-close"));
+      expect(screen.queryByTestId("gallery-dialog")).not.toBeInTheDocument();
+    }
+  });
+
+  it("sizes the lightbox image to its own natural aspect ratio and keeps the close button above it", async () => {
+    render(<GalleryTicker items={makeItems(1)} />);
+    fireEvent.click(screen.getAllByTestId("gallery-image-button")[0]);
+    fireEvent.load(screen.getByTestId("gallery-dialog-image"));
+
+    const closeButton = await screen.findByTestId("gallery-dialog-close");
+    expect(closeButton.className).toContain("z-10");
+
+    const image = screen.getByTestId("gallery-dialog-image");
+    expect(image.className).toContain("h-auto");
+    expect(image.className).toContain("w-auto");
   });
 });
