@@ -18,3 +18,11 @@ export function mergeSettings<T extends Record<string, string>>(
   }
   return merged;
 }
+
+/** Keep only non-empty string URLs from a stored `hero_images` value. */
+export function parseHeroImages(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(
+    (url): url is string => typeof url === "string" && url.trim().length > 0,
+  );
+}

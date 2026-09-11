@@ -52,6 +52,19 @@ describe("resolveEdgeFunctionError", () => {
     );
   });
 
+  it("maps the tour-enquiry mandatory-fields rejection to friendly copy", async () => {
+    const result = {
+      data: {
+        error:
+          "tour, name, email, travel date, travellers and message are required",
+      },
+      error: null,
+    };
+    expect(await resolveEdgeFunctionError(result, FALLBACK)).toMatch(
+      /fill in every field/i,
+    );
+  });
+
   it("uses the fallback for an unrecognised server message", async () => {
     const result = {
       data: null,

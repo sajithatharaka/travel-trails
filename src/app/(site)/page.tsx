@@ -22,7 +22,7 @@ import ImageSlot from "@/components/ImageSlot";
 import TourCard from "@/components/TourCard";
 import HeroSlider from "@/components/HeroSlider";
 import HeroCta from "@/components/HeroCta";
-import EnquiryForm from "@/components/EnquiryForm";
+import GeneralEnquiryForm from "@/components/GeneralEnquiryForm";
 import FaqAccordion from "@/components/FaqAccordion";
 import GalleryTicker from "@/components/GalleryTicker";
 import TestimonialsMarquee from "@/components/TestimonialsMarquee";
@@ -97,8 +97,8 @@ export default async function HomePage() {
         label: welcome.badge_text,
         headline: welcome.heading,
         paragraphs: [welcome.paragraph_1, welcome.paragraph_2].filter(Boolean),
-        image: welcome.image_1_url || resolveImage("about"),
-        imageAlt: welcome.image_1_alt || "About Travel Trails",
+        image: welcome.image_url || resolveImage("about"),
+        imageAlt: welcome.image_alt || "About Travel Trails",
       }
     : {
         label: about.sectionLabel,
@@ -109,10 +109,26 @@ export default async function HomePage() {
       };
 
   const heroEyebrow = tour?.hero_eyebrow || hero.eyebrow;
-  const heroHeadline = tour?.hero_headline || hero.headline;
+  // The homepage hero headline is agency-level, not tour-specific — it always
+  // uses the generic siteConfig value so a featured tour's name (e.g. "The
+  // 7-Day Sri Lanka Escape") never becomes the homepage <h1>. The featured
+  // tour still drives the eyebrow, subheadline, background image and primary CTA.
+  const heroHeadline = hero.headline;
   const heroSub = tour?.hero_subheadline || hero.subheadline;
+
+  // Hero background: the slideshow images from Site Settings take priority. With
+  // 2+ images `HeroSlider` auto-rotates through them; with none we fall back to
+  // the featured tour's cover image, then the bundled scenic photo.
   const heroImg =
     tour?.cover_image_url || resolveImage(hero.fallbackImageId);
+  const heroSlides =
+    settings.hero_images.length > 0
+      ? settings.hero_images.map((img, i) => ({
+          id: `hero-${i}`,
+          img,
+          placeholder: "Sri Lanka",
+        }))
+      : [{ id: "hero", img: heroImg, placeholder: "Sri Lanka" }];
 
   const primaryCta = tour
     ? { label: "See This Itinerary", href: `/tours/${tour.slug}` }
@@ -125,9 +141,7 @@ export default async function HomePage() {
       <Header />
 
       {/* ─── HERO ─────────────────────────────────────────── */}
-      <HeroSlider
-        slides={[{ id: "hero", img: heroImg, placeholder: "Sri Lanka" }]}
-      >
+      <HeroSlider slides={heroSlides}>
         <div
           className="text-[13px] font-semibold uppercase tracking-[.14em]"
           style={{ color: "color-mix(in oklch, #c9682f 65%, white)" }}
@@ -387,12 +401,7 @@ export default async function HomePage() {
               ))}
             </div>
           </div>
-          <EnquiryForm
-            successMessage={enquiry.successMessage}
-            tourId={tour?.id}
-            tourSlug={tour?.slug}
-            tourTitle={tour?.title}
-          />
+          <GeneralEnquiryForm successMessage={enquiry.successMessage} />
         </div>
       </section>
 

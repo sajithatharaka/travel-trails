@@ -8,6 +8,8 @@
 |---|---|
 | 2026-09-06 | Initial implementation. |
 | 2026-09-06 | Fix: blog editor now invalidates the `["admin-blogs"]` React Query cache on save, so a new/edited post appears on `/admin/blog` without a manual page refresh. |
+| 2026-09-11 | `welcome_sections` reduced to a **single** image (`image_url`/`image_alt`). The homepage About block only ever rendered `image_1_url`; `image_2..4` were captured by the admin form but never displayed — dead fields, now dropped (migration `20260911000000_welcome_section_single_image.sql`). The page also gained the "Homepage hero slideshow" card (moved from `/admin/settings` — same `site_settings.hero_images` data, see [homepage-hero.md](./homepage-hero.md)) and its own [homepage-welcome-section.md](./homepage-welcome-section.md) doc. |
+| 2026-09-11 | `/admin/welcome-section` simplified further: dropped the variants list and its New/edit-popup/Delete entirely for a **single always-editing form**, pre-filled on load — the homepage only ever used one row, so browsing a list and opening its editor added a click for nothing. |
 
 ## Overview
 
@@ -26,7 +28,7 @@ a table is empty or unreachable.
 | `faqs` | question, answer, category, nullable `tour_id`, display_order, `is_visible` |
 | `gallery` | alt_text, category, image_url, nullable `tour_id`, display_order, `is_visible` |
 | `reviews` | reviewer_name, rating (1–5), review_text, source, location, display_order, `is_visible` |
-| `welcome_sections` | badge_text, heading, paragraph_1/2, image_1..4 url+alt, display_order, `is_active` |
+| `welcome_sections` | badge_text, heading, paragraph_1/2, image_url+image_alt, display_order, `is_active` |
 
 RLS: public `select` where `is_published` / `is_visible` / `is_active`; any
 authenticated team member has full CRUD. Seed = the six config FAQ, six
@@ -70,9 +72,13 @@ surfaced as `FAQPage` on `/tours/[slug]`.
 
 - **`/admin/faqs`** — list, reorder, hide/show, create/edit dialog, delete.
 - **`/admin/reviews`**, **`/admin/gallery`** (upload grid — compact thumbnails,
-  2 columns on mobile up to 6 on wide screens), **`/admin/welcome-section`**
-  (4 image uploads) — built on the shared `lib/admin/useCrudCollection` hook
-  (list + create/update/delete/toggle/reorder mutations for a runtime table).
+  2 columns on mobile up to 6 on wide screens) — built on the shared
+  `lib/admin/useCrudCollection` hook (list + create/update/delete/toggle/reorder
+  mutations for a runtime table).
+- **`/admin/welcome-section`** — a single always-editing form (there's only
+  ever one row), not a list — see
+  [homepage-welcome-section.md](./homepage-welcome-section.md); also hosts the
+  "Homepage hero slideshow" card.
 - **`/admin/blog`** list + **`/admin/blog/[id]`** editor with
   `MarkdownEditor` (write / preview toggle), cover image, excerpt, SEO fields,
   publish toggle. `slugify` shared via `lib/slug.ts`. On save the editor

@@ -72,12 +72,6 @@ Deno.serve(async (req) => {
   if (!supabaseUrl || !serviceRoleKey) {
     return json({ error: "Supabase service env vars missing" }, 500);
   }
-  if (!resendApiKey || !from) {
-    return json(
-      { error: "RESEND_API_KEY or NOTIFICATION_FROM_EMAIL is not configured" },
-      500,
-    );
-  }
 
   const admin = createClient(supabaseUrl, serviceRoleKey);
 
@@ -114,6 +108,24 @@ Deno.serve(async (req) => {
   }
 
   const dedupeKey = dedupeKeyFor(body);
+
+  // Missing email config would otherwise fail silently: the submit-* functions
+  // call this best-effort and never surface a 500. Record it as a failed
+  // dispatch so /admin sees why no email went out.
+  if (!resendApiKey || !from) {
+    const reason =
+      "RESEND_API_KEY or NOTIFICATION_FROM_EMAIL is not configured";
+    await admin.from("notification_dispatch_logs").upsert(
+      {
+        dedupe_key: dedupeKey,
+        event_type: body.event_type,
+        status: "failed",
+        details: { error: reason, reason: "missing_email_config" },
+      },
+      { onConflict: "dedupe_key" },
+    );
+    return json({ error: reason }, 500);
+  }
 
   const { data: existing } = await admin
     .from("notification_dispatch_logs")

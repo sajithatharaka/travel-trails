@@ -33,6 +33,8 @@ const FRIENDLY_BY_SERVER_MESSAGE: Record<string, string> = {
     "Please enter your name and email, then try again.",
   "name, email and message are required":
     "Please fill in your name, email and message, then try again.",
+  "tour, name, email, travel date, travellers and message are required":
+    "Please fill in every field, then try again.",
 };
 
 function friendlyFor(serverMessage: string, fallback: string): string {

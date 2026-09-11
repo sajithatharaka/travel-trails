@@ -31,6 +31,27 @@ describe("homepage hero fallback image", () => {
     expect(src).not.toContain("formatPriceFrom");
   });
 
+  it("hero headline is agency-level, not the featured tour's hero_headline", () => {
+    const src = readFileSync(
+      join(process.cwd(), "src/app/(site)/page.tsx"),
+      "utf8",
+    );
+    // The homepage <h1> must come from siteConfig, so a tour name like
+    // "The 7-Day Sri Lanka Escape" can never become the homepage headline.
+    expect(src).toMatch(/const heroHeadline = hero\.headline;/);
+    expect(src).not.toMatch(/heroHeadline = tour\?\.hero_headline/);
+  });
+
+  it("hero slideshow is driven by settings.hero_images", () => {
+    const src = readFileSync(
+      join(process.cwd(), "src/app/(site)/page.tsx"),
+      "utf8",
+    );
+    // Site Settings images take priority; the tour cover is only the fallback.
+    expect(src).toMatch(/settings\.hero_images\.length > 0/);
+    expect(src).toMatch(/<HeroSlider slides=\{heroSlides\}>/);
+  });
+
   it("the cover-image seed migration uses a real scenic photo", () => {
     const sql = readFileSync(
       join(

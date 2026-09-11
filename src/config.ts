@@ -241,6 +241,7 @@ export const siteConfig = {
       "Private, boutique journeys across Sri Lanka. Planned by locals, for travellers who want more than a checklist.",
     exploreLinks: [
       { label: "Tours", href: "/tours" },
+      { label: "Blog", href: "/blog" },
       { label: "FAQ", href: "/#faq" },
     ],
     companyLinks: [

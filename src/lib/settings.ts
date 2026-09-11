@@ -3,11 +3,12 @@ import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { supabasePublic } from "@/lib/supabase/public";
 import { siteConfig } from "@/config";
-import { mergeSettings } from "@/lib/format";
+import { mergeSettings, parseHeroImages } from "@/lib/format";
 
 export const SETTINGS_TAG = "site-settings";
 
-export type SiteSettings = {
+/** Free-text keys managed by the admin form, merged over config.ts defaults. */
+export type SiteSettingsText = {
   brand_name: string;
   contact_email: string;
   contact_phone: string;
@@ -18,8 +19,13 @@ export type SiteSettings = {
   footer_group_note: string;
 };
 
-/** The keys the admin form manages, with config.ts as the fallback source. */
-export const SETTINGS_DEFAULTS: SiteSettings = {
+export type SiteSettings = SiteSettingsText & {
+  /** Homepage hero slideshow — public image URLs, in display order. */
+  hero_images: string[];
+};
+
+/** The string keys the admin form manages, with config.ts as the fallback. */
+export const SETTINGS_TEXT_DEFAULTS: SiteSettingsText = {
   brand_name: siteConfig.brand.name,
   contact_email: siteConfig.contact.email,
   contact_phone: siteConfig.contact.phone,
@@ -28,6 +34,11 @@ export const SETTINGS_DEFAULTS: SiteSettings = {
   whatsapp_message: siteConfig.enquiry.whatsappMessage,
   footer_description: siteConfig.footer.description,
   footer_group_note: siteConfig.footer.groupNote,
+};
+
+export const SETTINGS_DEFAULTS: SiteSettings = {
+  ...SETTINGS_TEXT_DEFAULTS,
+  hero_images: [],
 };
 
 const load = unstable_cache(
@@ -52,5 +63,8 @@ const load = unstable_cache(
 
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   const raw = await load();
-  return mergeSettings(SETTINGS_DEFAULTS, raw);
+  return {
+    ...mergeSettings(SETTINGS_TEXT_DEFAULTS, raw),
+    hero_images: parseHeroImages(raw.hero_images),
+  };
 });

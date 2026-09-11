@@ -15,13 +15,17 @@ around bookable tour packages. Roles: **admin** and **tour_designer**
 | [phase-4-settings.md](./requirements/phase-4-settings.md) | Editable site settings, notification recipients, user management, technical notes, user guide |
 | [admin-dashboard.md](./requirements/admin-dashboard.md) | Admin dashboard overview cards, each backed by a live DB count and linked to its section |
 | [homepage-hero.md](./requirements/homepage-hero.md) | Full-bleed homepage hero: content sources, single background image, CTAs |
+| [homepage-welcome-section.md](./requirements/homepage-welcome-section.md) | Homepage "About" block: content source, single image, inline (non-popup) admin editor at `/admin/welcome-section` |
 | [home-route-map.md](./requirements/home-route-map.md) | Homepage Route section: uncropped island diagram (`fit="contain"`, artwork aspect ratio) + stop list |
 | [home-featured-trails.md](./requirements/home-featured-trails.md) | Homepage 4-tile featured-trails grid + "View all tours" link; shared `TourCard`; replaces the day-by-day itinerary + stats bar |
 | [home-testimonials-marquee.md](./requirements/home-testimonials-marquee.md) | Homepage "What Our Guests Say": paused-on-hover marquee of all testimonials, fixed-size cards with clipped quote + "See more" dialog |
+| [home-gallery-lightbox.md](./requirements/home-gallery-lightbox.md) | Homepage gallery ticker: click a tile to open the full image in a lightbox dialog |
 | [testing.md](./requirements/testing.md) | Vitest (unit / integration / component) + Playwright (e2e) setup and coverage |
 | [sample-seed-data.md](./requirements/sample-seed-data.md) | Idempotent sample rows for every table, for testing against a live database |
 | [seo-structured-data.md](./requirements/seo-structured-data.md) | JSON-LD entity graph on every public page + `/llms.txt` for SEO / AEO / GEO |
 | [seo-metadata-og-images.md](./requirements/seo-metadata-og-images.md) | Generated OG/Twitter image, meta-description fallbacks, per-page social context, sitemap freshness, single-source NAP, structured-data correctness, 404 + manifest |
+| [deployment-netlify-nextjs-runtime.md](./requirements/deployment-netlify-nextjs-runtime.md) | `netlify.toml` + `@netlify/plugin-nextjs` to enable the Next.js Runtime and stop site-wide 404s |
+| [supabase-deploy-script.md](./requirements/supabase-deploy-script.md) | `scripts/deploy-supabase.sh`: `supabase link` made non-fatal + explicit `--project-ref` so a Developer-role access token can deploy; allowlist-only `.env` read (no env var is pushed to Supabase); `link` needs Owner/Admin |
 
 ## Delivery status
 

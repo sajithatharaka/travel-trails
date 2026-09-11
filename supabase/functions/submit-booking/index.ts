@@ -8,6 +8,7 @@ import {
   verifyTurnstile,
   invokeNotify,
 } from "../_shared/turnstile.ts";
+import { isUuid } from "../_shared/pure.ts";
 
 interface BookingPayload {
   turnstileToken?: string;
@@ -54,13 +55,32 @@ Deno.serve(async (req) => {
   if (!turnstileToken) {
     return jsonResponse({ error: "Missing verification token" }, 400);
   }
-  if (!first_name || !email) {
-    return jsonResponse({ error: "first_name and email are required" }, 400);
+  // A tour enquiry is always submitted from a /tours/[slug] page, so every
+  // field is mandatory: the tour it is about, name, email, travel date,
+  // travellers, and a message. Tour-free "get in touch" messages go through
+  // submit-contact instead.
+  const travellersNum =
+    typeof travellers === "number" ? travellers : Number(travellers);
+  if (
+    !isUuid(tour_id ?? "") ||
+    !first_name ||
+    !email ||
+    !travel_date ||
+    !String(message ?? "").trim() ||
+    !Number.isInteger(travellersNum) ||
+    travellersNum < 1
+  ) {
+    return jsonResponse(
+      {
+        error:
+          "tour, name, email, travel date, travellers and message are required",
+      },
+      400,
+    );
   }
-  // A travel date is optional, but when given it must be a real future date
-  // (strictly after today, UTC). Mirrors `isFutureTravelDate` in
-  // `src/lib/travelDate.ts`.
-  if (travel_date != null && travel_date !== "") {
+  // The travel date must be a real future date (strictly after today, UTC).
+  // Mirrors `isFutureTravelDate` in `src/lib/travelDate.ts`.
+  {
     const todayUtc = new Date().toISOString().slice(0, 10);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(travel_date) || travel_date <= todayUtc) {
       return jsonResponse({ error: "travel_date must be in the future" }, 400);

@@ -34,6 +34,20 @@ describe("submit-booking edge function", () => {
     );
   });
 
+  it("requires the tour and every enquiry field before inserting", () => {
+    // A tour enquiry always comes from a /tours/[slug] page: tour + name +
+    // email + travel date + travellers + message are all mandatory.
+    const guard =
+      "tour, name, email, travel date, travellers and message are required";
+    expect(src).toContain(guard);
+    expect(src).toMatch(/isUuid\(tour_id \?\? ""\)/);
+    expect(src).toMatch(/Number\.isInteger\(travellersNum\)/);
+    expect(src).toMatch(/travellersNum < 1/);
+    expect(src.indexOf(guard)).toBeLessThan(
+      src.indexOf(".from(\"booking_requests\").insert"),
+    );
+  });
+
   it("inserts with the service-role key", () => {
     expect(src).toMatch(/SUPABASE_SERVICE_ROLE_KEY/);
   });
@@ -74,6 +88,21 @@ describe("notify-admin-events edge function", () => {
   it("requires an authenticated caller for status-change events", () => {
     const block = src.slice(src.indexOf("booking_status_changed"));
     expect(block).toMatch(/getUser\(\)/);
+  });
+
+  it("records a failed dispatch log when the email config is missing", () => {
+    // The submit-* callers are best-effort and never surface this 500, so the
+    // misconfig must leave a trace in notification_dispatch_logs.
+    const guardAt = src.indexOf("if (!resendApiKey || !from)");
+    expect(guardAt).toBeGreaterThan(-1);
+    const block = src.slice(guardAt, guardAt + 500);
+    expect(block).toMatch(/notification_dispatch_logs/);
+    expect(block).toMatch(/status:\s*"failed"/);
+    expect(block).toMatch(/missing_email_config/);
+    // and it must run after the dedupe key exists so the row can be written
+    expect(src.indexOf("const dedupeKey = dedupeKeyFor(body)")).toBeLessThan(
+      guardAt,
+    );
   });
 });
 
@@ -123,6 +152,18 @@ describe("_shared/turnstile helper", () => {
   it("bounds the siteverify call with a timeout", () => {
     expect(src).toMatch(/AbortSignal\.timeout\(/);
   });
+
+  it("invokeNotify surfaces every failure mode in the logs", () => {
+    const at = src.indexOf("export async function invokeNotify");
+    const block = src.slice(at, at + 900);
+    // missing service env is logged, not a bare `return`
+    expect(block).toMatch(
+      /if \(!url \|\| !key\) \{[\s\S]*?console\.error\([\s\S]*?\[invokeNotify\]/,
+    );
+    // a non-2xx from notify-admin-events is logged with status + body
+    expect(block).toMatch(/if \(!res\.ok\)/);
+    expect(block).toMatch(/\[invokeNotify\] notify-admin-events returned HTTP/);
+  });
 });
 
 describe("supabase/config.toml verify_jwt flags", () => {
@@ -160,6 +201,26 @@ describe("RLS lockdown migration", () => {
     expect(sql).toMatch(
       /grant select, insert, update, delete\s*\n\s*on public\.booking_requests, public\.contact_submissions to service_role/,
     );
+  });
+});
+
+describe("deploy-supabase.sh secret documentation", () => {
+  const sh = read("scripts/deploy-supabase.sh");
+
+  it("lists every required Edge Function secret", () => {
+    for (const secret of [
+      "RESEND_API_KEY",
+      "NOTIFICATION_FROM_EMAIL",
+      "TURNSTILE_SECRET_KEY",
+      "TURNSTILE_ALLOWED_HOSTNAMES",
+    ]) {
+      expect(sh).toMatch(new RegExp(secret));
+    }
+  });
+
+  it("states that the script does not deploy secrets", () => {
+    expect(sh).toMatch(/secrets.*(NOT|not).*(read|set|deploy)/i);
+    expect(sh).toMatch(/supabase secrets list/);
   });
 });
 
