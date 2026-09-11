@@ -41,4 +41,11 @@ describe("<Footer />", () => {
       screen.getByText(/© 2031 Travel Trails\. All rights reserved\./),
     ).toBeInTheDocument();
   });
+
+  it("links to the blog under the Explore section", async () => {
+    render(await Footer());
+
+    const link = screen.getByRole("link", { name: "Blog" });
+    expect(link).toHaveAttribute("href", "/blog");
+  });
 });

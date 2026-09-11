@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import RequireRole from "@/components/admin/RequireRole";
 import type { NotificationRecipientRow } from "@/lib/supabase/database.types";
+import { recipientErrorMessage } from "./recipientErrors";
 
 const supabase = createClient();
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
@@ -48,7 +49,8 @@ function NotificationsInner() {
       setEmail("");
       toast.success("Recipient added");
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: unknown, value: string) =>
+      toast.error(recipientErrorMessage(e, value)),
   });
 
   const toggle = useMutation({
@@ -60,7 +62,7 @@ function NotificationsInner() {
       if (error) throw error;
     },
     onSuccess: invalidate,
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: unknown) => toast.error(recipientErrorMessage(e)),
   });
 
   const remove = useMutation({
@@ -75,7 +77,7 @@ function NotificationsInner() {
       invalidate();
       toast.success("Recipient removed");
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: unknown) => toast.error(recipientErrorMessage(e)),
   });
 
   return (

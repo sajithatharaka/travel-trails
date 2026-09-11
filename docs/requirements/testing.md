@@ -50,13 +50,20 @@ table from the migrations is seeded, every insert is idempotent, teardown
 mirrors it, only tagged `5eed…` / `@example.test` rows are touched). See
 [sample-seed-data.md](./sample-seed-data.md).
 
-**Component** — `EnquiryForm` + `ContactForm` (submit payload → correct edge
-function; function-level and transport errors surface), `FaqAccordion`
+**Component** — `EnquiryForm` + `ContactForm` + `GeneralEnquiryForm` (submit
+payload → correct edge function; function-level and transport errors surface;
+`EnquiryForm` also enforces every field `required` + the "Expected Travel Date"
+label; `GeneralEnquiryForm` sends no `tour_*` keys and honours the hero prefill),
+`FaqAccordion`
 (open / switch / collapse), `AdminFaqs` (list ordered, hidden badge, create via
-dialog asserts the `insert` payload).
+dialog asserts the `insert` payload), `AdminWelcomeSection` (loads straight
+into a pre-filled single always-editing form — no list, no dialog, no extra
+click — `update` payload has `image_url`/`image_alt` only, the relocated
+"Homepage hero slideshow" card saves to `site_settings`).
 
 **App (source assertions)** — `home-hero`, `home-section-order`,
-`technical-notes-host`; `structured-data` (every public route + `LegalLayout`
+`technical-notes-host`, `admin-hero-slideshow-relocation` (the hero-slideshow
+card lives on `/admin/welcome-section`, not `/admin/settings`); `structured-data` (every public route + `LegalLayout`
 renders `<JsonLd>` from the seo builders, no page hand-rolls the `ld+json` script);
 `llms-txt` (`/llms.txt` route handler → `text/plain`, cache header, tour/blog/
 policy links with absolute URLs, empty-state fallback).

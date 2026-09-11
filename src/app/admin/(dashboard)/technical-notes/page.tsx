@@ -38,7 +38,7 @@ const SERVICES: Service[] = [
     description:
       "Transactional email for admin notifications (new enquiry / contact / booking status).",
     detail:
-      "Secrets on Supabase: RESEND_API_KEY and NOTIFICATION_FROM_EMAIL (e.g. notification@traveltrails.agency). Recipients are managed under Notifications.",
+      "Secrets on Supabase (Edge Functions → Secrets, or `supabase secrets set` — not deployed by scripts/deploy-supabase.sh): RESEND_API_KEY and NOTIFICATION_FROM_EMAIL (a Resend-verified sender, e.g. notification@traveltrails.agency). Both are required — if either is unset, no email is sent and a `failed` row with reason `missing_email_config` is written to notification_dispatch_logs. Recipients are managed under Notifications.",
   },
   {
     name: "Google Analytics / Search Console",

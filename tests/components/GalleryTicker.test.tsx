@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import GalleryTicker from "@/components/GalleryTicker";
 
 const makeItems = (n: number) =>
@@ -34,5 +34,47 @@ describe("<GalleryTicker />", () => {
     expect(
       screen.getByRole("heading", { name: /a few moments from the trail/i }),
     ).toBeInTheDocument();
+  });
+
+  it("opens a lightbox dialog with the full image on tile click", () => {
+    render(<GalleryTicker items={makeItems(3)} />);
+    expect(screen.queryByTestId("gallery-dialog")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getAllByTestId("gallery-image-button")[0]);
+
+    const dialog = screen.getByTestId("gallery-dialog");
+    expect(dialog).toBeInTheDocument();
+    expect(screen.getByTestId("gallery-dialog-image")).toHaveAttribute(
+      "alt",
+      "Trail moment 0",
+    );
+  });
+
+  it("closes the lightbox via the close button", () => {
+    render(<GalleryTicker items={makeItems(3)} />);
+    fireEvent.click(screen.getAllByTestId("gallery-image-button")[0]);
+    fireEvent.click(screen.getByTestId("gallery-dialog-close"));
+    expect(screen.queryByTestId("gallery-dialog")).not.toBeInTheDocument();
+  });
+
+  it("closes the lightbox via an overlay click", () => {
+    render(<GalleryTicker items={makeItems(3)} />);
+    fireEvent.click(screen.getAllByTestId("gallery-image-button")[0]);
+    fireEvent.click(screen.getByTestId("gallery-dialog-overlay"));
+    expect(screen.queryByTestId("gallery-dialog")).not.toBeInTheDocument();
+  });
+
+  it("does not close the lightbox when clicking inside the dialog", () => {
+    render(<GalleryTicker items={makeItems(3)} />);
+    fireEvent.click(screen.getAllByTestId("gallery-image-button")[0]);
+    fireEvent.click(screen.getByTestId("gallery-dialog"));
+    expect(screen.getByTestId("gallery-dialog")).toBeInTheDocument();
+  });
+
+  it("closes the lightbox on Escape", () => {
+    render(<GalleryTicker items={makeItems(3)} />);
+    fireEvent.click(screen.getAllByTestId("gallery-image-button")[0]);
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByTestId("gallery-dialog")).not.toBeInTheDocument();
   });
 });

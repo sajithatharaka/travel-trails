@@ -1,13 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import TurnstileWidget, {
-  type TurnstileHandle,
-} from "@/components/TurnstileWidget";
+import TurnstileWidget from "@/components/TurnstileWidget";
 import { HAS_TURNSTILE } from "@/lib/turnstile";
-import { resolveEdgeFunctionError } from "@/lib/edgeFunctionError";
-type Status = "idle" | "loading" | "success" | "error";
+import { useTurnstileSubmit } from "@/components/useTurnstileSubmit";
 
 const GENERIC_ERROR =
   "Sorry, we couldn't send your message just now. Please try again in a moment, or email us directly.";
@@ -19,47 +14,19 @@ export default function ContactForm({
 }: {
   successMessage: string;
 }) {
-  const [status, setStatus] = useState<Status>("idle");
-  const [errorMsg, setErrorMsg] = useState("");
-  const [token, setToken] = useState<string | null>(null);
-  const turnstileRef = useRef<TurnstileHandle>(null);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (HAS_TURNSTILE && !token) {
-      setStatus("error");
-      setErrorMsg("Please complete the verification challenge.");
-      return;
-    }
-    setStatus("loading");
-    setErrorMsg("");
-
-    const form = e.currentTarget;
-    const fd = new FormData(form);
-    const supabase = createClient();
-    const result = await supabase.functions.invoke("submit-contact", {
-      body: {
-        turnstileToken: token ?? "",
+  const { status, errorMsg, token, setToken, turnstileRef, handleSubmit } =
+    useTurnstileSubmit({
+      functionName: "submit-contact",
+      genericError: GENERIC_ERROR,
+      buildBody: (fd, turnstileToken) => ({
+        turnstileToken,
         name: String(fd.get("name") ?? "").trim(),
         email: String(fd.get("email") ?? "").trim(),
         phone: String(fd.get("phone") ?? "").trim() || null,
         subject: String(fd.get("subject") ?? "").trim() || "General Enquiry",
         message: String(fd.get("message") ?? "").trim(),
-      },
+      }),
     });
-
-    turnstileRef.current?.reset();
-    setToken(null);
-
-    const friendlyError = await resolveEdgeFunctionError(result, GENERIC_ERROR);
-    if (friendlyError) {
-      setStatus("error");
-      setErrorMsg(friendlyError);
-      return;
-    }
-    setStatus("success");
-    form.reset();
-  }
 
   const inputClasses =
     "w-full rounded-[10px] border border-line bg-surface px-4 py-[13px] text-[14.5px] text-ink placeholder-ink-soft/60 outline-none transition-colors focus:border-terracotta disabled:opacity-50";

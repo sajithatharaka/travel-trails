@@ -268,7 +268,7 @@ insert into public.reviews (
 -- ── welcome_sections ───────────────────────────────────────────────────────
 insert into public.welcome_sections (
   id, badge_text, heading, paragraph_1, paragraph_2,
-  image_1_url, image_1_alt, image_2_url, image_2_alt,
+  image_url, image_alt,
   display_order, is_active
 ) values (
   '5eed0000-0000-4000-a000-000000000501',
@@ -276,8 +276,7 @@ insert into public.welcome_sections (
   'Sample · Welcome section heading',
   'First sample paragraph for testing the homepage welcome block.',
   'Second sample paragraph.',
-  '/images/day-sigiriya.jpg', 'Sample welcome image 1',
-  '/images/day-kandy.jpg', 'Sample welcome image 2',
+  '/images/day-sigiriya.jpg', 'Sample welcome image',
   10, false
 ) on conflict (id) do nothing;
 

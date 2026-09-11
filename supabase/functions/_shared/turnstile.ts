@@ -134,14 +134,22 @@ export async function verifyTurnstile(
 /**
  * Fire the notify-admin-events function server-to-server using the service role
  * key as the bearer (that function has verify_jwt = true). Best-effort: a
- * failure here never blocks the form submission.
+ * failure here never blocks the form submission, but every failure mode is
+ * logged with an `[invokeNotify]` prefix so a silently missing email can be
+ * traced from the submit-* function logs.
  */
 export async function invokeNotify(body: Record<string, unknown>): Promise<void> {
   const url = Deno.env.get("SUPABASE_URL") ?? "";
   const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-  if (!url || !key) return;
+  if (!url || !key) {
+    console.error(
+      "[invokeNotify] SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing — " +
+        "admin notification not sent",
+    );
+    return;
+  }
   try {
-    await fetch(`${url}/functions/v1/notify-admin-events`, {
+    const res = await fetch(`${url}/functions/v1/notify-admin-events`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -149,7 +157,14 @@ export async function invokeNotify(body: Record<string, unknown>): Promise<void>
       },
       body: JSON.stringify(body),
     });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      console.error(
+        `[invokeNotify] notify-admin-events returned HTTP ${res.status}: ` +
+          detail.slice(0, 500),
+      );
+    }
   } catch (e) {
-    console.error("invokeNotify failed:", e);
+    console.error("[invokeNotify] request failed:", e);
   }
 }

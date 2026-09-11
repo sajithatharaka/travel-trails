@@ -1,7 +1,7 @@
 // src/components/HeroCta.tsx
 // ------------------------------------------------------------
 // Hero buttons. Wraps a smooth-scroll anchor so the click can also
-// broadcast a "prefill-message" event that BookingForm listens for.
+// broadcast a "prefill-message" event that GeneralEnquiryForm listens for.
 // ------------------------------------------------------------
 
 "use client";

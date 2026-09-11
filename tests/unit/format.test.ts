@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatPriceFrom, mergeSettings } from "@/lib/format";
+import { formatPriceFrom, mergeSettings, parseHeroImages } from "@/lib/format";
 
 describe("formatPriceFrom", () => {
   it("formats a price with a thousands separator", () => {
@@ -37,5 +37,26 @@ describe("mergeSettings", () => {
         extra_key: "ignored",
       }),
     ).toEqual(defaults);
+  });
+});
+
+describe("parseHeroImages", () => {
+  it("keeps the order of non-empty string URLs", () => {
+    expect(
+      parseHeroImages(["/a.jpg", "/b.jpg", "/c.jpg"]),
+    ).toEqual(["/a.jpg", "/b.jpg", "/c.jpg"]);
+  });
+
+  it("drops blanks and non-string entries", () => {
+    expect(
+      parseHeroImages(["/a.jpg", "", "   ", 5, null, "/b.jpg"]),
+    ).toEqual(["/a.jpg", "/b.jpg"]);
+  });
+
+  it("returns an empty array for a missing or non-array value", () => {
+    expect(parseHeroImages(undefined)).toEqual([]);
+    expect(parseHeroImages(null)).toEqual([]);
+    expect(parseHeroImages("nope")).toEqual([]);
+    expect(parseHeroImages({})).toEqual([]);
   });
 });

@@ -13,28 +13,40 @@ vi.mock("@/lib/supabase/client", () => ({
 
 import EnquiryForm from "@/components/EnquiryForm";
 
+const TOUR = {
+  tourId: "3f8c1b2a-0000-4a0b-8c0d-000000000001",
+  tourSlug: "the-escape",
+  tourTitle: "The Escape",
+};
+
+function renderForm(props: Partial<React.ComponentProps<typeof EnquiryForm>> = {}) {
+  return render(
+    <EnquiryForm successMessage="Thanks! We'll be in touch." {...TOUR} {...props} />,
+  );
+}
+
+/** Fill every mandatory field with a valid value. */
+async function fillValidForm(user: ReturnType<typeof userEvent.setup>) {
+  await user.type(screen.getByTestId("enquiry-name"), "Jane Doe");
+  await user.type(screen.getByTestId("enquiry-email"), "jane@example.com");
+  fireEvent.change(screen.getByTestId("enquiry-travel-date"), {
+    target: { value: earliestTravelDate() },
+  });
+  await user.type(screen.getByTestId("enquiry-travellers"), "2");
+  await user.type(screen.getByTestId("enquiry-message"), "Sounds great");
+}
+
 beforeEach(() => {
   invoke.mockReset();
 });
 
 describe("<EnquiryForm />", () => {
-  it("submits the enquiry to the submit-booking function with the tour context", async () => {
+  it("submits to submit-booking with the tour context and every mandatory field", async () => {
     invoke.mockResolvedValue({ data: { success: true }, error: null });
     const user = userEvent.setup();
 
-    render(
-      <EnquiryForm
-        successMessage="Thanks! We'll be in touch."
-        tourId="tour-1"
-        tourSlug="the-escape"
-        tourTitle="The Escape"
-      />,
-    );
-
-    await user.type(screen.getByTestId("enquiry-name"), "Jane Doe");
-    await user.type(screen.getByTestId("enquiry-email"), "jane@example.com");
-    await user.type(screen.getByTestId("enquiry-travellers"), "2");
-    await user.type(screen.getByTestId("enquiry-message"), "Sounds great");
+    renderForm();
+    await fillValidForm(user);
     await user.click(screen.getByRole("button", { name: /send enquiry/i }));
 
     await waitFor(() => expect(invoke).toHaveBeenCalledTimes(1));
@@ -45,9 +57,10 @@ describe("<EnquiryForm />", () => {
       last_name: "Doe",
       email: "jane@example.com",
       travellers: 2,
-      tour_id: "tour-1",
-      tour_slug: "the-escape",
-      tour_title: "The Escape",
+      travel_date: earliestTravelDate(),
+      tour_id: TOUR.tourId,
+      tour_slug: TOUR.tourSlug,
+      tour_title: TOUR.tourTitle,
       message: "Sounds great",
     });
 
@@ -56,37 +69,57 @@ describe("<EnquiryForm />", () => {
     ).toBeInTheDocument();
   });
 
-  it("sets the travel-date input's min to tomorrow and forwards a future date", async () => {
-    invoke.mockResolvedValue({ data: { success: true }, error: null });
+  it("labels the date field 'Expected Travel Date' and marks every field required", () => {
+    renderForm();
+    expect(screen.getByText("Expected Travel Date")).toBeInTheDocument();
+    for (const testId of [
+      "enquiry-name",
+      "enquiry-email",
+      "enquiry-travel-date",
+      "enquiry-travellers",
+      "enquiry-message",
+    ]) {
+      expect(screen.getByTestId(testId)).toBeRequired();
+    }
+  });
+
+  it("blocks submit with an inline message when a mandatory field is empty", async () => {
     const user = userEvent.setup();
 
-    render(<EnquiryForm successMessage="done" />);
+    renderForm();
+    await user.type(screen.getByTestId("enquiry-name"), "Jane Doe");
+    await user.type(screen.getByTestId("enquiry-email"), "jane@example.com");
+    fireEvent.change(screen.getByTestId("enquiry-travel-date"), {
+      target: { value: earliestTravelDate() },
+    });
+    // travellers + message left blank
+    fireEvent.submit(
+      screen.getByRole("button", { name: /send enquiry/i }).closest("form")!,
+    );
+
+    expect(await screen.findByText(/fill in every field/i)).toBeInTheDocument();
+    expect(invoke).not.toHaveBeenCalled();
+  });
+
+  it("sets the travel-date input's min to tomorrow", () => {
+    renderForm();
     const dateInput = screen.getByTestId(
       "enquiry-travel-date",
     ) as HTMLInputElement;
     expect(dateInput.min).toBe(earliestTravelDate());
-
-    await user.type(screen.getByTestId("enquiry-name"), "Jane Doe");
-    await user.type(screen.getByTestId("enquiry-email"), "jane@example.com");
-    fireEvent.change(dateInput, { target: { value: earliestTravelDate() } });
-    await user.click(screen.getByRole("button", { name: /send enquiry/i }));
-
-    await waitFor(() => expect(invoke).toHaveBeenCalledTimes(1));
-    expect(invoke.mock.calls[0][1].body.travel_date).toBe(earliestTravelDate());
   });
 
   it("blocks a past travel date before calling the function", async () => {
     const user = userEvent.setup();
 
-    render(<EnquiryForm successMessage="done" />);
+    renderForm();
     await user.type(screen.getByTestId("enquiry-name"), "Jane Doe");
     await user.type(screen.getByTestId("enquiry-email"), "jane@example.com");
+    await user.type(screen.getByTestId("enquiry-travellers"), "2");
+    await user.type(screen.getByTestId("enquiry-message"), "Hi");
     fireEvent.change(screen.getByTestId("enquiry-travel-date"), {
       target: { value: "2000-01-01" },
     });
-    // Submit the form directly — a browser's own `min` validation would also
-    // block this, but the JS guard is what produces the inline message and
-    // catches a value set past the native check.
     fireEvent.submit(
       screen.getByRole("button", { name: /send enquiry/i }).closest("form")!,
     );
@@ -98,19 +131,23 @@ describe("<EnquiryForm />", () => {
   });
 
   it("maps a known function-level error to friendly copy and does not show success", async () => {
-    invoke.mockResolvedValue({ data: { error: "Verification failed" }, error: null });
+    invoke.mockResolvedValue({
+      data: { error: "Verification failed" },
+      error: null,
+    });
     const user = userEvent.setup();
 
-    render(<EnquiryForm successMessage="done" />);
-    await user.type(screen.getByTestId("enquiry-name"), "Bob");
-    await user.type(screen.getByTestId("enquiry-email"), "bob@example.com");
+    renderForm();
+    await fillValidForm(user);
     await user.click(screen.getByRole("button", { name: /send enquiry/i }));
 
     expect(
       await screen.findByText(/couldn't verify that you're human/i),
     ).toBeInTheDocument();
     expect(screen.queryByText("Verification failed")).not.toBeInTheDocument();
-    expect(screen.queryByText("done")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Thanks! We'll be in touch."),
+    ).not.toBeInTheDocument();
   });
 
   it("never shows the raw 'non-2xx status code' string when the function returns 400", async () => {
@@ -119,16 +156,16 @@ describe("<EnquiryForm />", () => {
       error: {
         name: "FunctionsHttpError",
         message: "Edge Function returned a non-2xx status code",
-        context: new Response(JSON.stringify({ error: "Missing verification token" }), {
-          status: 400,
-        }),
+        context: new Response(
+          JSON.stringify({ error: "Missing verification token" }),
+          { status: 400 },
+        ),
       },
     });
     const user = userEvent.setup();
 
-    render(<EnquiryForm successMessage="done" />);
-    await user.type(screen.getByTestId("enquiry-name"), "Bob");
-    await user.type(screen.getByTestId("enquiry-email"), "bob@example.com");
+    renderForm();
+    await fillValidForm(user);
     await user.click(screen.getByRole("button", { name: /send enquiry/i }));
 
     expect(
@@ -144,9 +181,8 @@ describe("<EnquiryForm />", () => {
     });
     const user = userEvent.setup();
 
-    render(<EnquiryForm successMessage="done" />);
-    await user.type(screen.getByTestId("enquiry-name"), "Bob");
-    await user.type(screen.getByTestId("enquiry-email"), "bob@example.com");
+    renderForm();
+    await fillValidForm(user);
     await user.click(screen.getByRole("button", { name: /send enquiry/i }));
 
     expect(

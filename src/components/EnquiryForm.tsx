@@ -1,28 +1,29 @@
 // src/components/EnquiryForm.tsx
 // ------------------------------------------------------------
-// Public tour enquiry form. Solves a Cloudflare Turnstile challenge, then
-// POSTs to the submit-booking edge function (which verifies the token and
-// writes a booking_requests row with the service role). Used on the homepage
-// #enquiry section and on each /tours/[slug] page.
+// Public tour enquiry form. Rendered on every /tours/[slug] page, so a tour is
+// always in context and its id/slug/title travel with the submission. Solves a
+// Cloudflare Turnstile challenge, then POSTs to the submit-booking edge function
+// (which verifies the token and writes a booking_requests row with the service
+// role). Every field is mandatory — name, email, expected travel date,
+// travellers, and message. General, tour-free "get in touch" messages use
+// GeneralEnquiryForm on the homepage instead.
 // ------------------------------------------------------------
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import TurnstileWidget, {
-  type TurnstileHandle,
-} from "@/components/TurnstileWidget";
-import { PREFILL_MESSAGE_EVENT } from "@/components/HeroCta";
+import { useState } from "react";
+import TurnstileWidget from "@/components/TurnstileWidget";
 import { HAS_TURNSTILE } from "@/lib/turnstile";
-import { resolveEdgeFunctionError } from "@/lib/edgeFunctionError";
+import { useTurnstileSubmit } from "@/components/useTurnstileSubmit";
 import { earliestTravelDate, isFutureTravelDate } from "@/lib/travelDate";
-type Status = "idle" | "loading" | "success" | "error";
 
 const GENERIC_ERROR =
   "Sorry, we couldn't send your enquiry just now. Please try again in a moment, or email us directly.";
 const VERIFICATION_UNAVAILABLE_ERROR =
   "Sorry, the verification widget couldn't load. Please refresh the page and try again, or email us directly.";
+
+const ALL_FIELDS_REQUIRED =
+  "Please fill in every field — name, email, expected travel date, travellers and message.";
 
 export default function EnquiryForm({
   successMessage,
@@ -31,81 +32,50 @@ export default function EnquiryForm({
   tourTitle,
 }: {
   successMessage: string;
-  tourId?: string;
-  tourSlug?: string;
-  tourTitle?: string;
+  tourId: string;
+  tourSlug: string;
+  tourTitle: string;
 }) {
-  const [status, setStatus] = useState<Status>("idle");
-  const [errorMsg, setErrorMsg] = useState("");
-  const [message, setMessage] = useState("");
-  const [token, setToken] = useState<string | null>(null);
   const [minTravelDate] = useState(earliestTravelDate);
-  const turnstileRef = useRef<TurnstileHandle>(null);
 
-  useEffect(() => {
-    function handlePrefill(e: Event) {
-      setMessage(String((e as CustomEvent).detail ?? ""));
-    }
-    window.addEventListener(PREFILL_MESSAGE_EVENT, handlePrefill);
-    return () => window.removeEventListener(PREFILL_MESSAGE_EVENT, handlePrefill);
-  }, []);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const fd = new FormData(form);
-
-    if (HAS_TURNSTILE && !token) {
-      setStatus("error");
-      setErrorMsg("Please complete the verification challenge.");
-      return;
-    }
-
-    const travelDate = String(fd.get("travel_date") ?? "");
-    if (travelDate && !isFutureTravelDate(travelDate)) {
-      setStatus("error");
-      setErrorMsg("Please choose a travel date in the future.");
-      return;
-    }
-
-    setStatus("loading");
-    setErrorMsg("");
-
-    const fullName = String(fd.get("name") ?? "").trim();
-    const [first_name, ...rest] = fullName.split(/\s+/);
-
-    const supabase = createClient();
-    const result = await supabase.functions.invoke("submit-booking", {
-      body: {
-        turnstileToken: token ?? "",
-        tour_id: tourId ?? null,
-        tour_slug: tourSlug ?? null,
-        tour_title: tourTitle ?? null,
-        first_name: first_name || fullName,
-        last_name: rest.join(" "),
-        email: String(fd.get("email") ?? "").trim(),
-        travel_date: travelDate || null,
-        travellers: fd.get("travellers")
-          ? Number(fd.get("travellers"))
-          : null,
-        message: String(fd.get("message") ?? "").trim() || null,
+  const { status, errorMsg, token, setToken, turnstileRef, handleSubmit } =
+    useTurnstileSubmit({
+      functionName: "submit-booking",
+      genericError: GENERIC_ERROR,
+      validate: (fd) => {
+        const name = String(fd.get("name") ?? "").trim();
+        const email = String(fd.get("email") ?? "").trim();
+        const travelDate = String(fd.get("travel_date") ?? "");
+        const travellers = String(fd.get("travellers") ?? "").trim();
+        const message = String(fd.get("message") ?? "").trim();
+        if (!name || !email || !travelDate || !travellers || !message) {
+          return ALL_FIELDS_REQUIRED;
+        }
+        if (!isFutureTravelDate(travelDate)) {
+          return "Please choose a travel date in the future.";
+        }
+        if (!(Number(travellers) >= 1)) {
+          return "Please enter the number of travellers.";
+        }
+        return null;
+      },
+      buildBody: (fd, turnstileToken) => {
+        const fullName = String(fd.get("name") ?? "").trim();
+        const [first_name, ...rest] = fullName.split(/\s+/);
+        return {
+          turnstileToken,
+          tour_id: tourId,
+          tour_slug: tourSlug,
+          tour_title: tourTitle,
+          first_name: first_name || fullName,
+          last_name: rest.join(" "),
+          email: String(fd.get("email") ?? "").trim(),
+          travel_date: String(fd.get("travel_date") ?? ""),
+          travellers: Number(fd.get("travellers")),
+          message: String(fd.get("message") ?? "").trim(),
+        };
       },
     });
-
-    turnstileRef.current?.reset();
-    setToken(null);
-
-    const friendlyError = await resolveEdgeFunctionError(result, GENERIC_ERROR);
-    if (friendlyError) {
-      setStatus("error");
-      setErrorMsg(friendlyError);
-      return;
-    }
-
-    setStatus("success");
-    form.reset();
-    setMessage("");
-  }
 
   const inputClasses =
     "w-full rounded-[10px] border border-line bg-surface px-4 py-[13px] text-[14.5px] text-ink placeholder-ink-soft/60 outline-none transition-colors focus:border-terracotta disabled:opacity-50";
@@ -149,13 +119,14 @@ export default function EnquiryForm({
       </div>
       <div>
         <label className={labelClasses} htmlFor="enq-date">
-          Travel Date
+          Expected Travel Date
         </label>
         <input
           id="enq-date"
           data-testid="enquiry-travel-date"
           type="date"
           name="travel_date"
+          required
           min={minTravelDate}
           disabled={busy}
           className={inputClasses}
@@ -170,6 +141,7 @@ export default function EnquiryForm({
           data-testid="enquiry-travellers"
           type="number"
           name="travellers"
+          required
           min="1"
           placeholder="2"
           disabled={busy}
@@ -184,13 +156,8 @@ export default function EnquiryForm({
           id="enq-message"
           data-testid="enquiry-message"
           name="message"
-          placeholder={
-            tourTitle
-              ? `Any preferences or questions about ${tourTitle}?`
-              : "Which tour or region are you interested in, and any preferences?"
-          }
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          required
+          placeholder={`Any preferences or questions about ${tourTitle}?`}
           disabled={busy}
           className={`${inputClasses} min-h-[100px] resize-y`}
         />

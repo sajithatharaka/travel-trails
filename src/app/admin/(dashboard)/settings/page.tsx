@@ -60,10 +60,11 @@ export default function AdminSettingsPage() {
   async function handleSave() {
     setSaving(true);
     try {
+      const now = new Date().toISOString();
       const rows = FIELDS.map((f) => ({
         key: f.key,
         value: values[f.key] ?? "",
-        updated_at: new Date().toISOString(),
+        updated_at: now,
       }));
       const { error } = await supabase
         .from("site_settings")

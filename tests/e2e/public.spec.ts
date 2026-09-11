@@ -1,13 +1,13 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("public site", () => {
-  test("homepage renders a hero heading and the enquiry form", async ({
+  test("homepage renders a hero heading and the general enquiry form", async ({
     page,
   }) => {
     await page.goto("/");
     await expect(page.locator("h1").first()).toBeVisible();
-    await expect(page.getByTestId("enquiry-name")).toBeVisible();
-    await expect(page.getByTestId("enquiry-email")).toBeVisible();
+    await expect(page.getByTestId("general-enquiry-name")).toBeVisible();
+    await expect(page.getByTestId("general-enquiry-email")).toBeVisible();
   });
 
   test("nav links reach Tours and Blog", async ({ page }) => {
