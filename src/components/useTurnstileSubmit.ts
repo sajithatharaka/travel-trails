@@ -87,5 +87,14 @@ export function useTurnstileSubmit({
     onSuccess?.(form);
   }
 
-  return { status, errorMsg, token, setToken, turnstileRef, handleSubmit };
+  return {
+    status,
+    errorMsg,
+    token,
+    setToken,
+    setStatus,
+    setErrorMsg,
+    turnstileRef,
+    handleSubmit,
+  };
 }

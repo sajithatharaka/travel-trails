@@ -212,7 +212,7 @@ describe("<EnquiryForm />", () => {
       const FreshEnquiryForm = (await import("@/components/EnquiryForm"))
         .default;
 
-      render(<FreshEnquiryForm successMessage="done" />);
+      render(<FreshEnquiryForm successMessage="done" {...TOUR} />);
 
       expect(
         await screen.findByText(/verification widget couldn't load/i),

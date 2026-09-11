@@ -38,8 +38,16 @@ export default function EnquiryForm({
 }) {
   const [minTravelDate] = useState(earliestTravelDate);
 
-  const { status, errorMsg, token, setToken, turnstileRef, handleSubmit } =
-    useTurnstileSubmit({
+  const {
+    status,
+    errorMsg,
+    token,
+    setToken,
+    setStatus,
+    setErrorMsg,
+    turnstileRef,
+    handleSubmit,
+  } = useTurnstileSubmit({
       functionName: "submit-booking",
       genericError: GENERIC_ERROR,
       validate: (fd) => {

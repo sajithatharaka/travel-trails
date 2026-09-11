@@ -14,8 +14,16 @@ export default function ContactForm({
 }: {
   successMessage: string;
 }) {
-  const { status, errorMsg, token, setToken, turnstileRef, handleSubmit } =
-    useTurnstileSubmit({
+  const {
+    status,
+    errorMsg,
+    token,
+    setToken,
+    setStatus,
+    setErrorMsg,
+    turnstileRef,
+    handleSubmit,
+  } = useTurnstileSubmit({
       functionName: "submit-contact",
       genericError: GENERIC_ERROR,
       buildBody: (fd, turnstileToken) => ({

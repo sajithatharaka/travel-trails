@@ -131,6 +131,37 @@ and try again, or email us directly." instead of failing silently. This
 makes future misconfigurations visible to visitors — it does not by itself
 fix the domain allowlist gap above.
 
+### 2026-09-11 — Netlify build broken: `setStatus`/`setErrorMsg` not found
+
+**Symptom:** Netlify build failed at the type-check step (commit `75e14b7`):
+
+```
+src/components/ContactForm.tsx(70,15): error TS2552: Cannot find name 'setStatus'.
+src/components/ContactForm.tsx(71,15): error TS2552: Cannot find name 'setErrorMsg'.
+src/components/EnquiryForm.tsx(174,15): error TS2552: Cannot find name 'setStatus'.
+src/components/EnquiryForm.tsx(175,15): error TS2552: Cannot find name 'setErrorMsg'.
+```
+
+**Root cause:** the `feature/split-contact-tour-enquiry` work extracted the
+submit flow shared by `ContactForm`, `EnquiryForm`, and `GeneralEnquiryForm`
+into `src/components/useTurnstileSubmit.ts`, moving `status`/`errorMsg` state
+into the hook. The hook's return value only exposed the setter for `token`
+(`setToken`), not `setStatus` / `setErrorMsg` — but the `onError` callback
+added in the 2026-09-09 fix above (Turnstile's `error-callback`, on
+`ContactForm` and `EnquiryForm`) still called `setStatus("error")` /
+`setErrorMsg(VERIFICATION_UNAVAILABLE_ERROR)` directly, which no longer
+resolved to anything in scope.
+
+**Fix:** `useTurnstileSubmit` now also returns `setStatus` and `setErrorMsg`;
+`ContactForm` and `EnquiryForm` destructure them alongside `setToken`.
+`GeneralEnquiryForm` doesn't use the widget's `onError` callback, so it was
+unaffected.
+
+**Test:** `tests/components/ContactForm.test.tsx` gained the same
+"Turnstile fails to load" case `EnquiryForm.test.tsx` already had, so this
+path (calling the setters from `onError`) has runtime coverage on both forms
+going forward.
+
 ## Acceptance criteria
 
 - [x] Widget renders with the real site key and action `travel-trails-form`.
